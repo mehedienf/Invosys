@@ -1,0 +1,77 @@
+@model InventoryTracker.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "ইউজার সম্পাদনা";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0 text-dark">
+                    <i class="bi bi-pencil-square me-2"></i>ইউজার সম্পাদনা
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-bold">
+                            <i class="bi bi-person me-1"></i>ইউজারনেম
+                        </label>
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-bold">
+                            <i class="bi bi-person-badge me-1"></i>পুরো নাম
+                        </label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-bold">
+                            <i class="bi bi-lock me-1"></i>নতুন পাসওয়ার্ড (খালি রাখলে আগেরটা থাকবে)
+                        </label>
+                        <input asp-for="Password" class="form-control" placeholder="নতুন পাসওয়ার্ড (ঐচ্ছিক)" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-bold">
+                            <i class="bi bi-shield me-1"></i>রোল
+                        </label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="Staff">Staff (শুধু বিক্রয়)</option>
+                            <option value="Admin">Admin (সব অ্যাক্সেস)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="isActive" value="true" class="form-check-input" 
+                                   id="isActive" @(ViewBag.IsActive ? "checked" : "") />
+                            <label class="form-check-label fw-bold" for="isActive">
+                                <i class="bi bi-toggle-on me-1"></i>সক্রিয়
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-circle me-1"></i>আপডেট করুন
+                        </button>
+                        <a asp-action="Users" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>ফিরে যান
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

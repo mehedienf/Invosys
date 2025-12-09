@@ -1,0 +1,100 @@
+@model IEnumerable<InventoryTracker.Models.User>
+
+@{
+    ViewData["Title"] = "ইউজার ব্যবস্থাপনা";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold text-primary mb-0">
+            <i class="bi bi-people me-2"></i>ইউজার ব্যবস্থাপনা
+        </h1>
+        <p class="text-muted">সিস্টেম ইউজার পরিচালনা করুন</p>
+    </div>
+    <a asp-action="Register" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i>নতুন ইউজার
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ইউজারনেম</th>
+                        <th>পুরো নাম</th>
+                        <th class="text-center">রোল</th>
+                        <th class="text-center">স্ট্যাটাস</th>
+                        <th>তৈরির তারিখ</th>
+                        <th class="text-center">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <i class="bi bi-person-circle me-1"></i>
+                                <strong>@user.Username</strong>
+                            </td>
+                            <td>@user.FullName</td>
+                            <td class="text-center">
+                                @if (user.Role == "Admin")
+                                {
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-shield-check me-1"></i>Admin
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-person me-1"></i>Staff
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success">সক্রিয়</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">নিষ্ক্রিয়</span>
+                                }
+                            </td>
+                            <td>@user.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" 
+                                      onsubmit="return confirm('আপনি কি নিশ্চিত?')">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

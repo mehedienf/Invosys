@@ -1,6 +1,9 @@
 using InventoryTracker.Data;
 using InventoryTracker.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Cryptography;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
+
+// 3. Authentication সেটআপ
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -27,7 +43,7 @@ using (var scope = app.Services.CreateScope())
     // Database তৈরি করুন (যদি না থাকে)
     context.Database.EnsureCreated();
     
-    // Seed Data (যদি কোনো পণ্য না থাকে)
+    // Seed Products (যদি কোনো পণ্য না থাকে)
     if (!context.Products.Any())
     {
         var products = new List<Product>
@@ -47,6 +63,43 @@ using (var scope = app.Services.CreateScope())
         context.Products.AddRange(products);
         context.SaveChanges();
     }
+    
+    // Seed Users (যদি কোনো ইউজার না থাকে)
+    if (!context.Users.Any())
+    {
+        // Password hash function
+        string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(bytes);
+        }
+        
+        var users = new List<User>
+        {
+            new User 
+            { 
+                Username = "admin", 
+                PasswordHash = HashPassword("admin123"), 
+                FullName = "সিস্টেম অ্যাডমিন", 
+                Role = "Admin", 
+                IsActive = true,
+                CreatedAt = DateTime.Now 
+            },
+            new User 
+            { 
+                Username = "staff", 
+                PasswordHash = HashPassword("staff123"), 
+                FullName = "সেলস স্টাফ", 
+                Role = "Staff", 
+                IsActive = true,
+                CreatedAt = DateTime.Now 
+            }
+        };
+        
+        context.Users.AddRange(users);
+        context.SaveChanges();
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -61,6 +114,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Authentication & Authorization middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

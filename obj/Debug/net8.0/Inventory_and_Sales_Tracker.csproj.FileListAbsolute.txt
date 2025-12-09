@@ -102,3 +102,4 @@
 /Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/obj/Debug/net8.0/Inventory_and_Sales_Tracker.sourcelink.json

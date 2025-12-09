@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using InventoryTracker.Data;
 using InventoryTracker.Models;
 
 namespace InventoryTracker.Controllers
 {
+    [Authorize]
     public class SalesController : Controller
     {
         private readonly ApplicationDbContext _context;
