@@ -1,0 +1,95 @@
+@{
+    ViewData["Title"] = "নতুন বিক্রয়";
+    var products = ViewBag.Products as List<InventoryTracker.Models.Product> ?? new List<InventoryTracker.Models.Product>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-cart-plus me-2"></i>নতুন বিক্রয়
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-person me-1"></i>গ্রাহকের নাম (ঐচ্ছিক)
+                            </label>
+                            <input type="text" name="customerName" class="form-control" placeholder="গ্রাহকের নাম" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-sticky me-1"></i>মন্তব্য (ঐচ্ছিক)
+                            </label>
+                            <input type="text" name="notes" class="form-control" placeholder="বিক্রয়ের মন্তব্য" />
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3"><i class="bi bi-box me-1"></i>পণ্য নির্বাচন করুন</h5>
+                    
+                    @if (products.Any())
+                    {
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>নির্বাচন</th>
+                                        <th>পণ্যের নাম</th>
+                                        <th>মূল্য</th>
+                                        <th>স্টকে আছে</th>
+                                        <th>পরিমাণ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in products)
+                                    {
+                                        <tr>
+                                            <td class="text-center">
+                                                <input type="hidden" name="productIds" value="@product.Id" />
+                                            </td>
+                                            <td><strong>@product.Name</strong></td>
+                                            <td class="text-success">৳@product.Price.ToString("N2")</td>
+                                            <td>
+                                                <span class="badge @(product.Quantity < 10 ? "bg-warning" : "bg-success")">
+                                                    @product.Quantity
+                                                </span>
+                                            </td>
+                                            <td style="width: 150px;">
+                                                <input type="number" name="quantities" class="form-control form-control-sm" 
+                                                       value="0" min="0" max="@product.Quantity" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            কোনো পণ্য নেই। প্রথমে পণ্য যোগ করুন।
+                            <a asp-controller="Products" asp-action="Create" class="alert-link">পণ্য যোগ করুন</a>
+                        </div>
+                    }
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success" @(products.Any() ? "" : "disabled")>
+                            <i class="bi bi-check-circle me-1"></i>বিক্রয় সম্পন্ন করুন
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>ফিরে যান
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

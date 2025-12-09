@@ -1,0 +1,208 @@
+@{
+    ViewData["Title"] = "রিপোর্ট";
+    var lowStockProducts = ViewBag.LowStockProducts as List<InventoryTracker.Models.Product> ?? new List<InventoryTracker.Models.Product>();
+    var recentSales = ViewBag.RecentSales as List<InventoryTracker.Models.SalesTransaction> ?? new List<InventoryTracker.Models.SalesTransaction>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold text-primary mb-0">
+            <i class="bi bi-bar-chart-line me-2"></i>রিপোর্ট
+        </h1>
+        <p class="text-muted">ব্যবসার সারসংক্ষেপ ও বিশ্লেষণ</p>
+    </div>
+    <div class="btn-group">
+        <a asp-action="Sales" class="btn btn-outline-success">
+            <i class="bi bi-receipt me-1"></i>বিক্রয় রিপোর্ট
+        </a>
+        <a asp-action="Inventory" class="btn btn-outline-primary">
+            <i class="bi bi-boxes me-1"></i>ইনভেন্টরি রিপোর্ট
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-primary text-white h-100 shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">মোট পণ্য</h6>
+                        <h2 class="card-title mb-0">@ViewBag.TotalProducts</h2>
+                    </div>
+                    <i class="bi bi-box-seam fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-info text-white h-100 shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">মোট স্টক</h6>
+                        <h2 class="card-title mb-0">@ViewBag.TotalStock</h2>
+                    </div>
+                    <i class="bi bi-clipboard-data fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-secondary text-white h-100 shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">স্টক মূল্য</h6>
+                        <h2 class="card-title mb-0">৳@(((decimal)(ViewBag.TotalStockValue ?? 0)).ToString("N0"))</h2>
+                    </div>
+                    <i class="bi bi-cash-stack fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-success text-white h-100 shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">মোট বিক্রয়</h6>
+                        <h2 class="card-title mb-0">@ViewBag.TotalSalesCount</h2>
+                    </div>
+                    <i class="bi bi-cart-check fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-warning h-100 shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">মোট আয়</h6>
+                        <h2 class="card-title mb-0">৳@(((decimal)(ViewBag.TotalRevenue ?? 0)).ToString("N0"))</h2>
+                    </div>
+                    <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-danger text-white h-100 shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">কম স্টক পণ্য</h6>
+                        <h2 class="card-title mb-0">@lowStockProducts.Count</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Low Stock Alert -->
+    <div class="col-lg-6">
+        <div class="card shadow h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>কম স্টক সতর্কতা</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (lowStockProducts.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>পণ্য</th>
+                                    <th class="text-center">স্টক</th>
+                                    <th>স্ট্যাটাস</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var product in lowStockProducts)
+                                {
+                                    <tr>
+                                        <td>@product.Name</td>
+                                        <td class="text-center">
+                                            <span class="badge @(product.Quantity == 0 ? "bg-danger" : "bg-warning")">
+                                                @product.Quantity
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (product.Quantity == 0)
+                                            {
+                                                <span class="text-danger">স্টক শেষ!</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-warning">কম স্টক</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-check-circle text-success fs-1"></i>
+                        <p class="text-muted mt-2">সব পণ্যের স্টক পর্যাপ্ত</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Sales -->
+    <div class="col-lg-6">
+        <div class="card shadow h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>সাম্প্রতিক বিক্রয়</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (recentSales.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>তারিখ</th>
+                                    <th class="text-end">মূল্য</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sale in recentSales)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-primary">#@sale.Id</span></td>
+                                        <td>@sale.SaleDate.ToString("dd MMM, hh:mm tt")</td>
+                                        <td class="text-end text-success fw-bold">৳@sale.TotalAmount.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-cart-x text-muted fs-1"></i>
+                        <p class="text-muted mt-2">এখনো কোনো বিক্রয় হয়নি</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,118 @@
+@model IEnumerable<InventoryTracker.Models.SalesTransaction>
+
+@{
+    ViewData["Title"] = "বিক্রয় রিপোর্ট";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold text-primary mb-0">
+            <i class="bi bi-receipt me-2"></i>বিক্রয় রিপোর্ট
+        </h1>
+        <p class="text-muted">বিক্রয়ের বিস্তারিত বিশ্লেষণ</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>ফিরে যান
+    </a>
+</div>
+
+<!-- Date Filter -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-calendar me-1"></i>শুরুর তারিখ</label>
+                <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><i class="bi bi-calendar me-1"></i>শেষ তারিখ</label>
+                <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i>ফিল্টার করুন
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card bg-success text-white shadow">
+            <div class="card-body text-center">
+                <h6 class="opacity-75">মোট বিক্রয় সংখ্যা</h6>
+                <h2>@ViewBag.TotalSales</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-warning shadow">
+            <div class="card-body text-center">
+                <h6 class="opacity-75">মোট আয়</h6>
+                <h2>৳@(((decimal)(ViewBag.TotalRevenue ?? 0)).ToString("N2"))</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Table -->
+<div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between">
+        <h5 class="mb-0"><i class="bi bi-table me-2"></i>বিক্রয় তালিকা</h5>
+        <button class="btn btn-sm btn-light" onclick="window.print()">
+            <i class="bi bi-printer"></i> প্রিন্ট
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>বিক্রয় #</th>
+                        <th>গ্রাহক</th>
+                        <th>তারিখ ও সময়</th>
+                        <th class="text-center">আইটেম</th>
+                        <th class="text-end">মোট মূল্য</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var sale in Model)
+                        {
+                            <tr>
+                                <td><span class="badge bg-primary">#@sale.Id</span></td>
+                                <td>@(string.IsNullOrEmpty(sale.CustomerName) ? "সাধারণ গ্রাহক" : sale.CustomerName)</td>
+                                <td>@sale.SaleDate.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">@(sale.SalesItems?.Count ?? 0) টি</span>
+                                </td>
+                                <td class="text-end text-success fw-bold">৳@sale.TotalAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">এই সময়ে কোনো বিক্রয় হয়নি</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                @if (Model != null && Model.Any())
+                {
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>মোট:</strong></td>
+                            <td class="text-end text-success fs-5 fw-bold">৳@(((decimal)(ViewBag.TotalRevenue ?? 0)).ToString("N2"))</td>
+                        </tr>
+                    </tfoot>
+                }
+            </table>
+        </div>
+    </div>
+</div>

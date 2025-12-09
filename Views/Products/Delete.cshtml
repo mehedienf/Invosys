@@ -1,0 +1,55 @@
+@model InventoryTracker.Models.Product
+
+@{
+    ViewData["Title"] = "পণ্য মুছুন";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>পণ্য মুছে ফেলুন
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning mb-4">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>সতর্কতা!</strong> আপনি কি নিশ্চিত যে এই পণ্যটি মুছে ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।
+                </div>
+                
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h5 class="text-danger mb-3">@Model.Name</h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>মূল্য:</strong></p>
+                                <h4 class="text-success">৳@Model.Price.ToString("N2")</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>স্টক:</strong></p>
+                                <h4 class="text-primary">@Model.Quantity</h4>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Category))
+                        {
+                            <p class="mb-0"><strong>ক্যাটাগরি:</strong> @Model.Category</p>
+                        }
+                    </div>
+                </div>
+                
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>হ্যাঁ, মুছে ফেলুন
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>বাতিল
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

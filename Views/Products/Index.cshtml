@@ -1,0 +1,37 @@
+@model IEnumerable<InventoryTracker.Models.Product>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<h1>Products</h1>
+
+<p>
+    <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Create New Product</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>নাম</th>
+            <th>মূল্য</th>
+            <th>পরিমাণ</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price.ToString("C")</td>
+                <td>@product.Quantity</td>
+                <td>
+                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,26 @@
+@model InventoryTracker.Models.ErrorViewModel
+
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 text-center py-5">
+        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 5rem;"></i>
+        <h1 class="display-4 text-danger mt-3">ত্রুটি!</h1>
+        <p class="lead text-muted">দুঃখিত, কিছু একটা সমস্যা হয়েছে।</p>
+        
+        @if (Model?.ShowRequestId ?? false)
+        {
+            <p class="text-muted small">
+                <strong>Request ID:</strong> <code>@Model?.RequestId</code>
+            </p>
+        }
+        
+        <div class="mt-4">
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house me-1"></i>হোমে ফিরে যান
+            </a>
+        </div>
+    </div>
+</div>
