@@ -12,10 +12,10 @@
     --info-color: #118ab2;
     --dark-color: #1a1a2e;
     --light-color: #f8f9fa;
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    --gradient-info: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-    --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-primary: #667eea;
+    --gradient-success: #11998e;
+    --gradient-info: #2193b0;
+    --gradient-warning: #f5576c;
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
     --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
@@ -37,7 +37,7 @@ html {
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    background: #f5f7fa;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -49,7 +49,7 @@ main {
 
 /* ---------- Navbar Styles ---------- */
 .navbar {
-    background: var(--gradient-primary) !important;
+    background: #667eea !important;
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow-md);
     padding: 1rem 0;
@@ -105,7 +105,7 @@ main {
 }
 
 .card.bg-warning {
-    background: linear-gradient(135deg, #f5af19 0%, #f12711 100%) !important;
+    background: #f5af19 !important;
     color: white !important;
 }
 
@@ -143,12 +143,12 @@ main {
 }
 
 .btn-warning {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #f5576c;
     color: white;
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+    background: #ff4b2b;
 }
 
 .btn-sm {

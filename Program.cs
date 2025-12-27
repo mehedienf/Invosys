@@ -8,8 +8,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Connection String পড়ুন
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-                       ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // 2. ApplicationDbContext রেজিস্ট্রেশন করুন (MySQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -14,7 +14,7 @@
     <thead>
         <tr>
             <th>নাম</th>
-            <th>মূল্য</th>
+            <th>মূল্য (BDT)</th>
             <th>পরিমাণ</th>
             <th></th>
         </tr>
@@ -24,7 +24,7 @@
         {
             <tr>
                 <td>@product.Name</td>
-                <td>@product.Price.ToString("C")</td>
+                <td>@product.Price</td>
                 <td>@product.Quantity</td>
                 <td>
                     <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Edit</a>
