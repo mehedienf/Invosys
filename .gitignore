@@ -1,20 +1,117 @@
+# .NET Core
 bin/
 obj/
-*.user
-*.suo
-*.log
-*.tmp
-*.cache
-*.DS_Store
 .vs/
+.vscode/
+*.sln.iml
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache/options directory
+.vscode/
+.vs/
+
+# Compiled files
+*.dll
+*.exe
+*.pdb
+*.lib
+*.obj
+*.idb
+*.ilk
+*.ncb
+*.sdf
+*.opensdf
+*.ipch
+*.pch
+
+# Visual Studio user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.dsw
+*.dsp
+
+# Logs
+*.log
+*.logs
+logs/
+
+# NuGet Packages
+*.nupkg
+*.nupkg.metadata
+*.snupkg
+.nuget/
+
+# Entity Framework
+migrations/
+*.db
+*.sqlite
+*.sqlite3
+
+# Application settings (local configurations)
+appsettings.Development.json
+appsettings.*.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Rider cache
 .idea/
-*.swp
+.idea_modules/
+*.iml
+
+# Temporary files
+*.tmp
+*.temp
 *.bak
 *.old
-*.class
-*.jar
-*.war
-*.ear
-*.iml
-*.pyc
-__pycache__/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+.Thumbs.db
+.AppleDouble
+
+# IDE specific
+*.swp
+*.swo
+*.sublime-*
+.sublime-project
+.sublime-workspace
+
+# Node modules (if using npm/yarn for frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Package managers
+.paket/paket.exe
+paket-files/
+
+# Build artifacts
+artifacts/
+publish/
+PublishProfiles/
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+
+# Code coverage
+coverage/
+opencover/
+
+# Local database backups
+*.bak.db
+*.backup
+*.restore
