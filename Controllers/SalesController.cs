@@ -39,9 +39,16 @@ namespace InventoryTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string? customerName, string? notes, int[] productIds, int[] quantities)
         {
-            if (productIds == null || productIds.Length == 0)
+            if (productIds == null || productIds.Length == 0 || quantities == null || quantities.Length == 0)
             {
                 ModelState.AddModelError("", "অন্তত একটি পণ্য নির্বাচন করুন");
+                ViewBag.Products = await _context.Products.Where(p => p.Quantity > 0).ToListAsync();
+                return View();
+            }
+
+            if (productIds.Length != quantities.Length)
+            {
+                ModelState.AddModelError("", "পণ্য এবং পরিমাণের সংখ্যা মেলে না");
                 ViewBag.Products = await _context.Products.Where(p => p.Quantity > 0).ToListAsync();
                 return View();
             }
