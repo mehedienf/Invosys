@@ -10,19 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Render এর জন্য PORT environment variable থেকে পোর্ট নিন
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "9999";
     options.ListenAnyIP(int.Parse(port));
 });
 
-// 1. Connection String পড়ুন - Render এর জন্য DATABASE_URL সাপোর্ট করুন
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found or DATABASE_URL not set.");
+// 1. Connection String পড়ুন (SQLite - Internal Database)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// 2. ApplicationDbContext রেজিস্ট্রেশন করুন (MySQL)
+// 2. ApplicationDbContext রেজিস্ট্রেশন করুন (SQLite)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    options.UseSqlite(connectionString);
 });
 
 // 3. Authentication সেটআপ

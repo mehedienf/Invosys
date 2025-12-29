@@ -10,14 +10,7 @@ services:
         value: Production
       - key: ASPNETCORE_URLS
         value: http://+:${PORT}
-      - key: DATABASE_URL
-        fromDatabase:
-          name: inventorydb
-          property: connectionString
-
-databases:
-  - name: inventorydb
-    databaseName: inventorydb
-    user: inventoryuser
-    plan: free
-    version: 8.0.31
+    disk:
+      name: inventory-db
+      mountPath: /data
+      sizeGB: 1

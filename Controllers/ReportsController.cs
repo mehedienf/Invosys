@@ -22,9 +22,20 @@ namespace InventoryTracker.Controllers
             // Summary data
             ViewBag.TotalProducts = await _context.Products.CountAsync();
             ViewBag.TotalStock = await _context.Products.SumAsync(p => p.Quantity);
-            ViewBag.TotalStockValue = await _context.Products.SumAsync(p => p.Price * p.Quantity);
+            
+            // SQLite doesn't support Sum on decimal, so we fetch data and aggregate on client side
+            var stockValues = await _context.Products
+                .Select(p => p.Price * p.Quantity)
+                .ToListAsync();
+            ViewBag.TotalStockValue = stockValues.Sum();
+            
             ViewBag.TotalSalesCount = await _context.SalesTransactions.CountAsync();
-            ViewBag.TotalRevenue = await _context.SalesTransactions.SumAsync(s => s.TotalAmount);
+            
+            // Fetch sales data and aggregate on client side
+            var revenues = await _context.SalesTransactions
+                .Select(s => s.TotalAmount)
+                .ToListAsync();
+            ViewBag.TotalRevenue = revenues.Sum();
             
             // Low stock products
             ViewBag.LowStockProducts = await _context.Products

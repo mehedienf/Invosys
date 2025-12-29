@@ -27,9 +27,13 @@ public class HomeController : Controller
         ViewBag.TotalSales = await _context.SalesTransactions.CountAsync();
         
         var today = DateTime.Today;
-        ViewBag.TodaySales = await _context.SalesTransactions
+        // SQLite doesn't support Sum on decimal, so we fetch data and aggregate on client side
+        var todaySales = await _context.SalesTransactions
             .Where(s => s.SaleDate.Date == today)
-            .SumAsync(s => s.TotalAmount);
+            .Select(s => s.TotalAmount)
+            .ToListAsync();
+        
+        ViewBag.TodaySales = todaySales.Sum();
         
         return View();
     }
