@@ -1,0 +1,16 @@
+# Docker ignore file
+bin/
+obj/
+.git/
+.gitignore
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
+node_modules/
+npm-debug.log
+.env
+.env.local
+appsettings.Development.json

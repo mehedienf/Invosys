@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: inventory-and-sales-tracker
+    runtime: dotnet
+    runtimeVersion: 8.0.12
+    buildCommand: dotnet publish -c Release -o ./out
+    startCommand: cd ./out && dotnet Inventory_and_Sales_Tracker.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:${PORT}
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inventorydb
+          property: connectionString
+
+databases:
+  - name: inventorydb
+    databaseName: inventorydb
+    user: inventoryuser
+    plan: free
+    version: 8.0.31

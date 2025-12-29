@@ -7,8 +7,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Connection String পড়ুন
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Render এর জন্য PORT environment variable থেকে পোর্ট নিন
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+    options.ListenAnyIP(int.Parse(port));
+});
+
+// 1. Connection String পড়ুন - Render এর জন্য DATABASE_URL সাপোর্ট করুন
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found or DATABASE_URL not set.");
 
 // 2. ApplicationDbContext রেজিস্ট্রেশন করুন (MySQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -38,10 +47,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    
+
     // Database তৈরি করুন (যদি না থাকে)
     context.Database.EnsureCreated();
-    
+
     // Seed Products (যদি কোনো পণ্য না থাকে)
     if (!context.Products.Any())
     {
@@ -58,11 +67,11 @@ using (var scope = app.Services.CreateScope())
             new Product { Name = "সাবান (লাক্স)", Description = "সুগন্ধি সাবান", Price = 45.00M, Quantity = 5, Category = "প্রসাধনী", CreatedAt = DateTime.Now },
             new Product { Name = "শ্যাম্পু", Description = "চুলের শ্যাম্পু", Price = 150.00M, Quantity = 15, Category = "প্রসাধনী", CreatedAt = DateTime.Now }
         };
-        
+
         context.Products.AddRange(products);
         context.SaveChanges();
     }
-    
+
     // Seed Users (যদি কোনো ইউজার না থাকে)
     if (!context.Users.Any())
     {
@@ -73,29 +82,29 @@ using (var scope = app.Services.CreateScope())
             var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
             return Convert.ToBase64String(bytes);
         }
-        
+
         var users = new List<User>
         {
-            new User 
-            { 
-                Username = "admin", 
-                PasswordHash = HashPassword("admin123"), 
-                FullName = "সিস্টেম অ্যাডমিন", 
-                Role = "Admin", 
+            new User
+            {
+                Username = "admin",
+                PasswordHash = HashPassword("admin123"),
+                FullName = "সিস্টেম অ্যাডমিন",
+                Role = "Admin",
                 IsActive = true,
-                CreatedAt = DateTime.Now 
+                CreatedAt = DateTime.Now
             },
-            new User 
-            { 
-                Username = "staff", 
-                PasswordHash = HashPassword("staff123"), 
-                FullName = "সেলস স্টাফ", 
-                Role = "Staff", 
+            new User
+            {
+                Username = "staff",
+                PasswordHash = HashPassword("staff123"),
+                FullName = "সেলস স্টাফ",
+                Role = "Staff",
                 IsActive = true,
-                CreatedAt = DateTime.Now 
+                CreatedAt = DateTime.Now
             }
         };
-        
+
         context.Users.AddRange(users);
         context.SaveChanges();
     }
@@ -110,7 +119,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.MapDefaultControllerRoute();
 app.UseRouting();
 
 // Authentication & Authorization middleware
