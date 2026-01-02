@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "দোকানের তথ্য সম্পাদনা";
+}
+
+@model InventoryTracker.Models.ShopInfo
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>দোকানের তথ্য সম্পাদনা
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="EditShopInfo" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Shop Name -->
+                    <div class="mb-3">
+                        <label asp-for="ShopName" class="form-label fw-bold">
+                            <i class="bi bi-building me-2"></i>দোকানের নাম
+                        </label>
+                        <input asp-for="ShopName" type="text" class="form-control" placeholder="দোকানের নাম" required />
+                        <span asp-validation-for="ShopName" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-bold">
+                            <i class="bi bi-telephone me-2"></i>ফোন নম্বর
+                        </label>
+                        <input asp-for="Phone" type="tel" class="form-control" placeholder="+880 1XXXXXXXXX" required />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold">
+                            <i class="bi bi-envelope me-2"></i>ইমেইল
+                        </label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="info@shop.com" required />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-bold">
+                            <i class="bi bi-map me-2"></i>ঠিকানা
+                        </label>
+                        <input asp-for="Address" type="text" class="form-control" placeholder="ঠিকানা" required />
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Opening Hours -->
+                    <div class="mb-3">
+                        <label asp-for="OpeningHours" class="form-label fw-bold">
+                            <i class="bi bi-clock me-2"></i>খোলার সময়
+                        </label>
+                        <input asp-for="OpeningHours" type="text" class="form-control" placeholder="সোম - রবি, ৯ AM - ৯ PM" required />
+                        <span asp-validation-for="OpeningHours" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label fw-bold">
+                            <i class="bi bi-file-text me-2"></i>বর্ণনা
+                        </label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="দোকানের বর্ণনা" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <hr />
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="@Url.Action("ShopInfo", "Account")" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>বাতিল করুন
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-circle me-1"></i>সংরক্ষণ করুন
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using InventoryTracker.Data;
 using InventoryTracker.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace InventoryTracker.Controllers
 {
@@ -153,6 +155,113 @@ namespace InventoryTracker.Controllers
             ViewBag.LowStock = products.Count(p => p.Quantity > 0 && p.Quantity < 10);
             
             return View(products);
+        }
+
+        // POST: Reports/DeleteSale with password verification
+        [HttpPost]
+        public async Task<IActionResult> DeleteSale([FromBody] DeleteSaleRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return Json(new { success = false, message = "অনুরোধ খালি" });
+                }
+                
+                int id = request.Id;
+                string password = request.Password ?? "";
+                
+                // Get the current logged-in user
+                var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
+                
+                if (currentUser == null)
+                {
+                    System.Console.WriteLine($"❌ Current user not found: {User.Identity?.Name}");
+                    return Json(new { success = false, message = "ব্যবহারকারী খুঁজে পাওয়া যায়নি" });
+                }
+
+                // Check if user has Admin role
+                if (!User.IsInRole("Admin"))
+                {
+                    return Json(new { success = false, message = "শুধুমাত্র প্রশাসকরা বিক্রয় মুছে ফেলতে পারেন" });
+                }
+
+                if (string.IsNullOrEmpty(currentUser.PasswordHash))
+                {
+                    System.Console.WriteLine($"❌ User {currentUser.Username} has no password hash!");
+                    return Json(new { success = false, message = "ব্যবহারকারী পাসওয়ার্ড সেট করা নেই" });
+                }
+
+                // Verify the entered password against the user's stored hash
+                bool isPasswordValid = VerifyPassword(password, currentUser.PasswordHash);
+                
+                System.Console.WriteLine($"User: {currentUser.Username}, Password valid: {isPasswordValid}");
+                if (!isPasswordValid)
+                {
+                    System.Console.WriteLine($"Stored hash: {currentUser.PasswordHash.Substring(0, Math.Min(30, currentUser.PasswordHash.Length))}...");
+                    System.Console.WriteLine($"Entered password: {password}");
+                }
+
+                if (!isPasswordValid)
+                {
+                    return Json(new { success = false, message = "পাসওয়ার্ড ভুল। বিক্রয় মুছে ফেলা যায়নি" });
+                }
+
+                // Check if there are at least 2 admin users before deletion
+                var adminUserCount = await _context.Users.CountAsync(u => u.Role == "Admin" && u.IsActive);
+                if (adminUserCount < 2)
+                {
+                    return Json(new { success = false, message = "সিস্টেমে কমপক্ষে একটা সক্রিয় প্রশাসক রাখতে হবে" });
+                }
+
+                // Find and delete the sale
+                var sale = await _context.SalesTransactions
+                    .Include(s => s.SalesItems)
+                    .FirstOrDefaultAsync(s => s.Id == id);
+
+                if (sale == null)
+                {
+                    return Json(new { success = false, message = "বিক্রয় রেকর্ড খুঁজে পাওয়া যায়নি" });
+                }
+
+                // Also restore the product quantities
+                if (sale.SalesItems != null)
+                {
+                    foreach (var item in sale.SalesItems)
+                    {
+                        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
+                        if (product != null)
+                        {
+                            product.Quantity += item.QuantitySold;
+                        }
+                    }
+                }
+
+                // Remove the sales items and transaction
+                _context.SalesItems.RemoveRange(sale.SalesItems ?? new List<SalesItem>());
+                _context.SalesTransactions.Remove(sale);
+                await _context.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"Sale {id} deleted successfully");
+                return Json(new { success = true, message = "বিক্রয় সফলভাবে মুছে ফেলা হয়েছে এবং স্টক পুনরুদ্ধার করা হয়েছে" });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in DeleteSale: {ex.Message}");
+                return Json(new { success = false, message = $"ত্রুটি: {ex.Message}" });
+            }
+        }
+
+        private static string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(bytes);
+        }
+
+        private static bool VerifyPassword(string password, string hash)
+        {
+            return HashPassword(password) == hash;
         }
     }
 }

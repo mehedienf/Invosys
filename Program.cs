@@ -71,6 +71,24 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 
+    // Seed Shop Info (যদি কোনো তথ্য না থাকে)
+    if (!context.ShopInfos.Any())
+    {
+        var shopInfo = new ShopInfo
+        {
+            ShopName = "আমাদের দোকান",
+            Phone = "+880 1XXX-XXXXXX",
+            Email = "info@shop.com",
+            Address = "ঢাকা, বাংলাদেশ",
+            OpeningHours = "সোম - রবি, ৯ AM - ৯ PM",
+            Description = "আমরা উচ্চমানের পণ্য সরবরাহ করি এবং সর্বোত্তম গ্রাহক সেবা প্রদান করি।",
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+        context.ShopInfos.Add(shopInfo);
+        context.SaveChanges();
+    }
+
     // Seed Sales Transactions (যদি কোনো বিক্রয় না থাকে)
     if (!context.SalesTransactions.Any())
     {
@@ -197,11 +215,21 @@ using (var scope = app.Services.CreateScope())
 
         var users = new List<User>
         {
+            // System admin - protected from deletion and editing
+            new User
+            {
+                Username = "system",
+                PasswordHash = HashPassword("system@123"),
+                FullName = "সিস্টেম অ্যাডমিনিস্ট্রেটর",
+                Role = "Admin",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
             new User
             {
                 Username = "admin",
                 PasswordHash = HashPassword("admin123"),
-                FullName = "সিস্টেম অ্যাডমিন",
+                FullName = "প্রধান অ্যাডমিন",
                 Role = "Admin",
                 IsActive = true,
                 CreatedAt = DateTime.Now

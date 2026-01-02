@@ -81,29 +81,33 @@
         @if (productSummary.Any())
         {
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover" style="margin-bottom: 0;">
                     <thead class="table-light">
                         <tr>
-                            <th>পণ্য নাম</th>
-                            <th class="text-center">মোট বিক্রয় পরিমাণ</th>
-                            <th class="text-center">বিক্রয় সংখ্যা</th>
+                            <th style="width: 50%;">পণ্য নাম</th>
+                            <th style="width: 25%;" class="text-center">মোট বিক্রয় পরিমাণ</th>
+                            <th style="width: 25%;" class="text-center">বিক্রয় সংখ্যা</th>
                         </tr>
                     </thead>
-                    <tbody>
+                </table>
+                <div style="max-height: 700px; overflow-y: auto;">
+                    <table class="table table-striped table-hover" style="margin-bottom: 0;">
+                        <tbody>
                         @foreach (var product in productSummary)
                         {
                             <tr>
-                                <td><strong>@product.ProductName</strong></td>
-                                <td class="text-center">
+                                <td style="width: 50%;"><strong>@product.ProductName</strong></td>
+                                <td style="width: 25%;" class="text-center">
                                     <span class="badge bg-success">@product.TotalQuantity পিস</span>
                                 </td>
-                                <td class="text-center">
+                                <td style="width: 25%;" class="text-center">
                                     <span class="badge bg-secondary">@product.TransactionCount বার</span>
                                 </td>
                             </tr>
                         }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         }
         else
@@ -117,37 +121,59 @@
 
 <!-- Sales Table -->
 <div class="card shadow">
-    <div class="card-header bg-primary text-white d-flex justify-content-between">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-table me-2"></i>বিক্রয় তালিকা</h5>
-        <button class="btn btn-sm btn-light" onclick="window.print()">
-            <i class="bi bi-printer"></i> প্রিন্ট
-        </button>
+        <div>
+            <button class="btn btn-sm btn-danger me-2" id="deleteSelectedBtn" style="display: none;">
+                <i class="bi bi-trash me-1"></i>মুছে ফেলুন (<span id="selectedCount">0</span>)
+            </button>
+            <button class="btn btn-sm btn-light" onclick="window.print()">
+                <i class="bi bi-printer"></i> প্রিন্ট
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
-                <thead class="table-dark">
+                <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th>বিক্রয় #</th>
-                        <th>গ্রাহক</th>
-                        <th>তারিখ ও সময়</th>
-                        <th class="text-center">আইটেম</th>
-                        <th class="text-end">মোট মূল্য</th>
+                        <th style="width: 40px;">
+                            <input type="checkbox" class="form-check-input" id="selectAll">
+                        </th>
+                        <th style="width: 10%;">বিক্রয় #</th>
+                        <th style="width: 18%;">গ্রাহক</th>
+                        <th style="width: 22%;">তারিখ ও সময়</th>
+                        <th style="width: 8%;" class="text-center">আইটেম</th>
+                        <th style="width: 12%;" class="text-end">মোট মূল্য</th>
+                        <th style="width: 12%;" class="text-center">অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody>
+            </table>
+        </div>
+        <div style="max-height: 800px; overflow-y: auto;">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <tbody>
                     @if (Model != null && Model.Any())
                     {
                         @foreach (var sale in Model)
                         {
-                            <tr class="table-primary fw-bold">
-                                <td><span class="badge bg-primary">#@sale.Id</span></td>
-                                <td>@(string.IsNullOrEmpty(sale.CustomerName) ? "সাধারণ গ্রাহক" : sale.CustomerName)</td>
-                                <td>@sale.SaleDate.ToString("dd MMM yyyy, hh:mm tt")</td>
-                                <td class="text-center">
+                            <tr class="table-primary fw-bold sale-row">
+                                <td style="width: 40px;" class="text-center">
+                                    <input type="checkbox" class="form-check-input sale-checkbox" data-sale-id="@sale.Id">
+                                </td>
+                                <td style="width: 10%;"><span class="badge bg-primary">#@sale.Id</span></td>
+                                <td style="width: 18%;">@(string.IsNullOrEmpty(sale.CustomerName) ? "সাধারণ গ্রাহক" : sale.CustomerName)</td>
+                                <td style="width: 22%;">@sale.SaleDate.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                <td style="width: 8%;" class="text-center">
                                     <span class="badge bg-info">@(sale.SalesItems?.Count ?? 0) টি</span>
                                 </td>
-                                <td class="text-end text-success fw-bold">৳@sale.TotalAmount.ToString("N2")</td>
+                                <td style="width: 12%;" class="text-end text-success fw-bold">৳@sale.TotalAmount.ToString("N2")</td>
+                                <td style="width: 12%;" class="text-center">
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-sale-id="@sale.Id">
+                                        <i class="bi bi-trash me-1"></i>মুছে ফেলুন
+                                    </button>
+                                </td>
                             </tr>
                             
                             <!-- Sales Items for this Transaction -->
@@ -156,15 +182,16 @@
                                 @foreach (var item in sale.SalesItems)
                                 {
                                     <tr class="table-light">
-                                        <td></td>
-                                        <td colspan="2">
+                                        <td style="width: 40px;"></td>
+                                        <td colspan="2" style="width: calc(10% + 18%);">
                                             <i class="bi bi-box-seam text-muted me-2"></i>
                                             <strong>@(item.Product?.Name ?? "পণ্য নাম জানা যায়নি")</strong>
                                         </td>
-                                        <td class="text-center">
+                                        <td style="width: 22%;">
                                             <span class="badge bg-success">@item.QuantitySold পিস</span>
                                         </td>
-                                        <td class="text-end">
+                                        <td style="width: 8%;" class="text-center"></td>
+                                        <td colspan="2" style="width: calc(12% + 12%);" class="text-end">
                                             <small>@(item.QuantitySold) × ৳@(item.UnitPrice.ToString("N2")) = <strong>@($"৳{Math.Round((decimal)item.QuantitySold * item.UnitPrice, 2):N2}")</strong></small>
                                         </td>
                                     </tr>
@@ -175,23 +202,201 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4">
+                            <td colspan="7" class="text-center py-4">
                                 <i class="bi bi-inbox fs-1 text-muted"></i>
                                 <p class="text-muted mt-2">এই সময়ে কোনো বিক্রয় হয়নি</p>
                             </td>
                         </tr>
                     }
-                </tbody>
-                @if (Model != null && Model.Any())
-                {
-                    <tfoot class="table-light">
-                        <tr>
-                            <td colspan="4" class="text-end"><strong>মোট:</strong></td>
-                            <td class="text-end text-success fs-5 fw-bold">৳@(((decimal)(ViewBag.TotalRevenue ?? 0)).ToString("N2"))</td>
-                        </tr>
-                    </tfoot>
-                }
-            </table>
+                    </tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="6" class="text-end"><strong>মোট:</strong></td>
+                                <td class="text-end text-success fs-5 fw-bold">৳@(((decimal)(ViewBag.TotalRevenue ?? 0)).ToString("N2"))</td>
+                            </tr>
+                        </tfoot>
+                    }
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalTitle"><i class="bi bi-exclamation-triangle me-2"></i>বিক্রয় মুছে ফেলুন</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>সতর্কতা:</strong> এই বিক্রয় রেকর্ড স্থায়ীভাবে মুছে ফেলা হবে এবং স্টক পুনরুদ্ধার করা হবে।
+                </div>
+                <p class="text-muted">এই অ্যাকশন নিশ্চিত করতে আপনার পাসওয়ার্ড প্রবেশ করুন:</p>
+                <div class="mb-3">
+                    <label class="form-label">প্রশাসক পাসওয়ার্ড</label>
+                    <input type="password" id="deletePassword" class="form-control" placeholder="পাসওয়ার্ড প্রবেশ করুন">
+                </div>
+                <input type="hidden" id="isBulkDelete" value="false">
+                <div id="deleteMessage" class="alert alert-danger d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash me-1"></i>মুছে ফেলুন
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Bulk Delete Functionality
+        document.getElementById('selectAll')?.addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.sale-checkbox');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+            updateDeleteButton();
+        });
+
+        document.querySelectorAll('.sale-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateDeleteButton);
+        });
+
+        function updateDeleteButton() {
+            const checkedBoxes = document.querySelectorAll('.sale-checkbox:checked');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            const countSpan = document.getElementById('selectedCount');
+            
+            if (checkedBoxes.length > 0) {
+                deleteBtn.style.display = 'inline-block';
+                countSpan.textContent = checkedBoxes.length;
+            } else {
+                deleteBtn.style.display = 'none';
+            }
+            
+            const allCheckboxes = document.querySelectorAll('.sale-checkbox');
+            const selectAllCb = document.getElementById('selectAll');
+            if (selectAllCb) {
+                selectAllCb.checked = allCheckboxes.length > 0 && checkedBoxes.length === allCheckboxes.length;
+            }
+        }
+
+        let bulkDeleteIds = [];
+
+        document.getElementById('deleteSelectedBtn')?.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('.sale-checkbox:checked');
+            bulkDeleteIds = Array.from(checkedBoxes).map(cb => cb.getAttribute('data-sale-id'));
+            
+            if (bulkDeleteIds.length === 0) {
+                alert('কোনো বিক্রয় নির্বাচন করা হয়নি');
+                return;
+            }
+            
+            // Show delete modal for bulk delete
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            document.getElementById('deletePassword').value = '';
+            document.getElementById('deleteMessage').classList.add('d-none');
+            document.getElementById('deleteModalTitle').textContent = `${bulkDeleteIds.length} টি বিক্রয় মুছে ফেলুন`;
+            document.getElementById('isBulkDelete').value = 'true';
+            deleteModal.show();
+        });
+
+        let currentSaleId = null;
+
+        // Set current sale ID when delete button is clicked
+        document.querySelectorAll('[data-bs-target="#deleteModal"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentSaleId = parseInt(this.getAttribute('data-sale-id'));
+                document.getElementById('deletePassword').value = '';
+                document.getElementById('deleteMessage').classList.add('d-none');
+            });
+        });
+
+        // Handle delete confirmation
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            const password = document.getElementById('deletePassword').value;
+            const messageDiv = document.getElementById('deleteMessage');
+            const isBulkDelete = document.getElementById('isBulkDelete').value === 'true';
+
+            if (!password) {
+                messageDiv.textContent = 'পাসওয়ার্ড প্রবেশ করুন';
+                messageDiv.classList.remove('d-none');
+                return;
+            }
+
+            if (isBulkDelete && bulkDeleteIds.length > 0) {
+                // Handle bulk delete with password
+                try {
+                    const response = await fetch('@Url.Action("DeleteMultiple", "Sales")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify(bulkDeleteIds)
+                    });
+                    
+                    if (response.ok) {
+                        messageDiv.textContent = '✅ ' + bulkDeleteIds.length + ' টি বিক্রয় সফলভাবে মুছে ফেলা হয়েছে';
+                        messageDiv.classList.remove('d-none', 'alert-danger');
+                        messageDiv.classList.add('alert-success');
+                        
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        messageDiv.textContent = '❌ বিক্রয় মুছে ফেলতে ব্যর্থ হয়েছে';
+                        messageDiv.classList.remove('d-none', 'alert-success');
+                        messageDiv.classList.add('alert-danger');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    messageDiv.textContent = 'ত্রুটি: ' + error.message;
+                    messageDiv.classList.remove('d-none', 'alert-success');
+                    messageDiv.classList.add('alert-danger');
+                }
+            } else if (!isBulkDelete && currentSaleId) {
+                // Handle single delete with password
+                try {
+                    const response = await fetch('@Url.Action("DeleteSale", "Reports")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            id: currentSaleId,
+                            password: password
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        messageDiv.textContent = '✅ ' + result.message;
+                        messageDiv.classList.remove('d-none', 'alert-danger');
+                        messageDiv.classList.add('alert-success');
+                        
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        messageDiv.textContent = '❌ ' + result.message;
+                        messageDiv.classList.remove('d-none', 'alert-success');
+                        messageDiv.classList.add('alert-danger');
+                    }
+                } catch (error) {
+                    messageDiv.textContent = 'ত্রুটি: ' + error.message;
+                    messageDiv.classList.remove('d-none', 'alert-success');
+                    messageDiv.classList.add('alert-danger');
+                }
+            }
+        });
+    </script>
+}

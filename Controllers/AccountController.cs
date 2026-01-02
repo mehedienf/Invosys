@@ -162,6 +162,13 @@ namespace InventoryTracker.Controllers
                 return NotFound();
             }
 
+            // Protect system admin from editing
+            if (user.Username == "system")
+            {
+                TempData["Error"] = "সিস্টেম অ্যাডমিন সম্পাদনা করা যায় না";
+                return RedirectToAction(nameof(Users));
+            }
+
             var model = new RegisterViewModel
             {
                 Username = user.Username,
@@ -184,6 +191,13 @@ namespace InventoryTracker.Controllers
             if (user == null)
             {
                 return NotFound();
+            }
+
+            // Protect system admin from editing
+            if (user.Username == "system")
+            {
+                TempData["Error"] = "সিস্টেম অ্যাডমিন সম্পাদনা করা যায় না";
+                return RedirectToAction(nameof(Users));
             }
 
             // Check if username exists for other users
@@ -222,12 +236,30 @@ namespace InventoryTracker.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
+                // Protect system admin from deletion
+                if (user.Username == "system")
+                {
+                    TempData["Error"] = "সিস্টেম অ্যাডমিন মুছে ফেলা যায় না";
+                    return RedirectToAction(nameof(Users));
+                }
+
                 // Don't delete yourself
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (currentUserId == id.ToString())
                 {
                     TempData["Error"] = "আপনি নিজেকে মুছতে পারবেন না";
                     return RedirectToAction(nameof(Users));
+                }
+
+                // Check if this is the last active admin user
+                if (user.Role == "Admin" && user.IsActive)
+                {
+                    var activeAdminCount = await _context.Users.CountAsync(u => u.Role == "Admin" && u.IsActive);
+                    if (activeAdminCount <= 1)
+                    {
+                        TempData["Error"] = "সিস্টেমে কমপক্ষে একটা সক্রিয় প্রশাসক রাখতে হবে";
+                        return RedirectToAction(nameof(Users));
+                    }
                 }
 
                 _context.Users.Remove(user);
@@ -248,6 +280,103 @@ namespace InventoryTracker.Controllers
         private static bool VerifyPassword(string password, string hash)
         {
             return HashPassword(password) == hash;
+        }
+
+        // GET: Account/ShopInfo (Admin and Staff)
+        [Authorize]
+        public async Task<IActionResult> ShopInfo()
+        {
+            // Get shop info from database, or use default values
+            var shopInfo = await _context.ShopInfos.FirstOrDefaultAsync();
+            
+            if (shopInfo == null)
+            {
+                // Default values if no shop info exists
+                shopInfo = new ShopInfo
+                {
+                    ShopName = "আমাদের দোকান",
+                    Phone = "+880 1XXX-XXXXXX",
+                    Email = "info@shop.com",
+                    Address = "ঢাকা, বাংলাদেশ",
+                    OpeningHours = "সোম - রবি, ৯ AM - ৯ PM",
+                    Description = "আমরা উচ্চমানের পণ্য সরবরাহ করি এবং সর্বোত্তম গ্রাহক সেবা প্রদান করি।"
+                };
+            }
+            
+            return View(shopInfo);
+        }
+
+        // GET: Account/EditShopInfo (Admin only)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> EditShopInfo()
+        {
+            var shopInfo = await _context.ShopInfos.FirstOrDefaultAsync();
+            
+            if (shopInfo == null)
+            {
+                // Create default if doesn't exist
+                shopInfo = new ShopInfo
+                {
+                    ShopName = "আমাদের দোকান",
+                    Phone = "+880 1XXX-XXXXXX",
+                    Email = "info@shop.com",
+                    Address = "ঢাকা, বাংলাদেশ",
+                    OpeningHours = "সোম - রবি, ৯ AM - ৯ PM",
+                    Description = "আমরা উচ্চমানের পণ্য সরবরাহ করি এবং সর্বোত্তম গ্রাহক সেবা প্রদান করি.",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                _context.ShopInfos.Add(shopInfo);
+                await _context.SaveChangesAsync();
+            }
+            
+            return View(shopInfo);
+        }
+
+        // POST: Account/EditShopInfo (Admin only)
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditShopInfo(ShopInfo model)
+        {
+            if (ModelState.IsValid)
+            {
+                var shopInfo = await _context.ShopInfos.FirstOrDefaultAsync();
+                
+                if (shopInfo == null)
+                {
+                    // Create new if doesn't exist
+                    shopInfo = new ShopInfo
+                    {
+                        ShopName = model.ShopName,
+                        Phone = model.Phone,
+                        Email = model.Email,
+                        Address = model.Address,
+                        OpeningHours = model.OpeningHours,
+                        Description = model.Description,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+                    _context.ShopInfos.Add(shopInfo);
+                }
+                else
+                {
+                    // Update existing
+                    shopInfo.ShopName = model.ShopName;
+                    shopInfo.Phone = model.Phone;
+                    shopInfo.Email = model.Email;
+                    shopInfo.Address = model.Address;
+                    shopInfo.OpeningHours = model.OpeningHours;
+                    shopInfo.Description = model.Description;
+                    shopInfo.UpdatedAt = DateTime.Now;
+                }
+                
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "দোকানের তথ্য সফলভাবে আপডেট করা হয়েছে";
+                return RedirectToAction(nameof(ShopInfo));
+            }
+            
+            return View(model);
         }
     }
 }

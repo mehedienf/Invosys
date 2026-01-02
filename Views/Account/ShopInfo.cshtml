@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "দোকানের তথ্য";
+}
+
+@model InventoryTracker.Models.ShopInfo
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-shop me-2"></i>দোকানের তথ্য
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                @if (!string.IsNullOrEmpty(TempData["Success"]?.ToString()))
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <!-- Shop Name -->
+                <div class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-building me-2"></i>দোকানের নাম
+                            </label>
+                            <p class="form-control-plaintext fs-5 text-primary fw-bold">@Model.ShopName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-telephone me-2"></i>ফোন নম্বর
+                            </label>
+                            <p class="form-control-plaintext fs-5">@Model.Phone</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email and Address -->
+                <div class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-envelope me-2"></i>ইমেইল
+                            </label>
+                            <p class="form-control-plaintext fs-5">@Model.Email</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-map me-2"></i>ঠিকানা
+                            </label>
+                            <p class="form-control-plaintext fs-5">@Model.Address</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opening Hours -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-clock me-2"></i>খোলার সময়
+                    </label>
+                    <p class="form-control-plaintext fs-5 text-success">@Model.OpeningHours</p>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-file-text me-2"></i>বর্ণনা
+                    </label>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <p class="card-text">@Model.Description</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("EditShopInfo", "Account")" class="btn btn-warning">
+                            <i class="bi bi-pencil me-1"></i>সম্পাদনা করুন
+                        </a>
+                    }
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>ফিরে যান
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        @if (!User.IsInRole("Admin"))
+        {
+            <div class="alert alert-info mt-4">
+                <i class="bi bi-info-circle me-2"></i>
+                এই তথ্য সম্পাদন করার জন্য আপনার Admin অনুমতি প্রয়োজন।
+            </div>
+        }
+    </div>
+</div>

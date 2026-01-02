@@ -1,6 +1,15 @@
 @{
     ViewData["Title"] = "নতুন বিক্রয়";
     var products = ViewBag.Products as List<InventoryTracker.Models.Product> ?? new List<InventoryTracker.Models.Product>();
+    
+    // Check if receipt data exists in TempData
+    var hasReceipt = TempData.ContainsKey("ReceiptId");
+    var receiptId = hasReceipt ? TempData["ReceiptId"] : null;
+    var receiptDate = hasReceipt ? TempData["ReceiptDate"] : null;
+    var receiptCustomer = hasReceipt ? TempData["ReceiptCustomer"] : null;
+    var receiptPhone = hasReceipt ? TempData["ReceiptPhone"] : null;
+    var receiptItems = hasReceipt ? TempData["ReceiptItems"]?.ToString() : null;
+    var receiptTotal = hasReceipt ? TempData["ReceiptTotal"] : null;
 }
 
 <div class="row justify-content-center">
@@ -14,56 +23,33 @@
             <div class="card-body p-4">
                 <form asp-action="Create" method="post" id="saleForm">
                     @Html.AntiForgeryToken()
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="bi bi-person me-1"></i>গ্রাহকের নাম (ঐচ্ছিক)
-                            </label>
-                            <input type="text" name="customerName" class="form-control" placeholder="গ্রাহকের নাম" />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="bi bi-telephone me-1"></i>ফোন নম্বর (ঐচ্ছিক)
-                            </label>
-                            <input type="tel" name="phoneNumber" class="form-control" placeholder="০১XXX-XXXXXX" />
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="bi bi-sticky me-1"></i>মন্তব্য (ঐচ্ছিক)
-                            </label>
-                            <input type="text" name="notes" class="form-control" placeholder="বিক্রয়ের মন্তব্য" />
-                        </div>
-                    </div>
                     
                     <h5 class="mb-3"><i class="bi bi-box me-1"></i>পণ্য নির্বাচন করুন</h5>
                     
                     @if (products.Any())
                     {
                         <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="bi bi-search me-1"></i>পণ্য খুঁজুন
-                            </label>
                             <input type="text" id="productSearch" class="form-control" placeholder="পণ্যের নাম বা ক্যাটাগরি দ্বারা খুঁজুন..." />
                         </div>
                     }
                     
                     @if (products.Any())
                     {
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>নির্বাচন</th>
-                                        <th>পণ্যের নাম</th>
-                                        <th>ক্যাটাগরি</th>
-                                        <th>মূল্য</th>
-                                        <th>স্টকে আছে</th>
-                                        <th>পরিমাণ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <div class="card mb-4" style="border: 1px solid #dee2e6;">
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: 600px; overflow-y: auto; max-width: 100%;">
+                                    <table class="table table-bordered mb-0">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th style="width: 50px;">নির্বাচন</th>
+                                                <th style="width: 35%;">পণ্যের নাম</th>
+                                                <th>ক্যাটাগরি</th>
+                                                <th>মূল্য</th>
+                                                <th>স্টকে আছে</th>
+                                                <th>পরিমাণ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                     @foreach (var product in products)
                                     {
                                         <tr class="product-row">
@@ -100,7 +86,9 @@
                                         </tr>
                                     }
                                 </tbody>
-                            </table>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     }
                     else
@@ -120,7 +108,7 @@
                                     <h6 class="mb-0"><i class="bi bi-receipt me-2"></i>বিল সারসংক্ষেপ</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div id="billItemsList" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px;">
+                                    <div id="billItemsList" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
                                     </div>
                                     <hr />
                                     <div class="mb-3">
@@ -163,16 +151,22 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label fw-bold">গ্রাহকের নাম (ঐচ্ছিক):</label>
-                    <p id="modalCustomerName" class="form-control-plaintext">-</p>
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-person me-1"></i>গ্রাহকের নাম (ঐচ্ছিক)
+                    </label>
+                    <input type="text" id="modalCustomerName" name="customerName" class="form-control" placeholder="গ্রাহকের নাম" />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">ফোন নম্বর (ঐচ্ছিক):</label>
-                    <p id="modalPhoneNumber" class="form-control-plaintext">-</p>
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-telephone me-1"></i>ফোন নম্বর (ঐচ্ছিক)
+                    </label>
+                    <input type="tel" id="modalPhoneNumber" name="phoneNumber" class="form-control" placeholder="০১XXX-XXXXXX" />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">মন্তব্য (ঐচ্ছিক):</label>
-                    <p id="modalNotes" class="form-control-plaintext">-</p>
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-sticky me-1"></i>মন্তব্য (ঐচ্ছিক)
+                    </label>
+                    <input type="text" id="modalNotes" name="notes" class="form-control" placeholder="বিক্রয়ের মন্তব্য" />
                 </div>
                 <hr />
                 <h6 class="mb-3"><i class="bi bi-box me-2"></i>পণ্য তালিকা</h6>
@@ -217,10 +211,199 @@
     </div>
 </div>
 
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Sales Receipt</h5>
+            </div>
+            <div class="modal-body">
+                <!-- Receipt Card -->
+                <div class="card border-0" id="receiptCard" style="background: #f8f9fa; border: 2px dashed #28a745;">
+                    <div class="card-body p-4">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h4 class="mb-1">🛍️ Our Store</h4>
+                            <p class="text-muted small mb-0">Sales Receipt</p>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Receipt Details -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Receipt No:</span>
+                                <strong id="receiptNumber">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Date & Time:</span>
+                                <strong id="receiptDateTime">-</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Customer Info -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Customer:</span>
+                                <strong id="receiptCustomer">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Phone:</span>
+                                <strong id="receiptPhone">-</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Items -->
+                        <div class="mb-3">
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
+                                    <span style="flex: 1;">Product</span>
+                                    <span style="width: 50px; text-align: center;">Qty</span>
+                                    <span style="width: 80px; text-align: right;">Price</span>
+                                </div>
+                            </div>
+                            <div id="receiptItems"></div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Total -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong>Total Amount:</strong>
+                                <h5 class="mb-0 text-success"><strong id="receiptTotal">৳0.00</strong></h5>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Footer -->
+                        <div class="text-center text-muted small">
+                            <p class="mb-1">Thank you for shopping with us!</p>
+                            <p>See you again!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeReceiptBtn" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>বাতিল
+                </button>
+                <button type="button" class="btn btn-success" id="printReceiptBtn" onclick="window.print();">
+                    <i class="bi bi-printer me-1"></i>রসিদ প্রিন্ট করুন
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     
     <script>
+        // Check if receipt data exists and show receipt modal
+        @if (hasReceipt && receiptId != null)
+        {
+            <text>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Receipt data found, preparing modal...');
+            
+            try {
+                // Populate receipt modal with data
+                const receiptNumberEl = document.getElementById('receiptNumber');
+                const receiptDateEl = document.getElementById('receiptDateTime');
+                const receiptCustomerEl = document.getElementById('receiptCustomer');
+                const receiptPhoneEl = document.getElementById('receiptPhone');
+                const receiptTotalEl = document.getElementById('receiptTotal');
+                const itemsContainer = document.getElementById('receiptItems');
+                
+                if (receiptNumberEl) receiptNumberEl.textContent = '@receiptId';
+                if (receiptDateEl) receiptDateEl.textContent = '@receiptDate';
+                if (receiptCustomerEl) receiptCustomerEl.textContent = '@Html.Raw(receiptCustomer ?? "অতিথি")';
+                if (receiptPhoneEl) receiptPhoneEl.textContent = '@Html.Raw(receiptPhone ?? "N/A")';
+                if (receiptTotalEl) receiptTotalEl.textContent = '৳@receiptTotal';
+                
+                // Parse and display receipt items - items stored as JSON array in TempData
+                const receiptItemsJson = @Html.Raw(receiptItems ?? "[]");
+                console.log('Parsed items:', receiptItemsJson);
+                
+                if (itemsContainer && receiptItemsJson && Array.isArray(receiptItemsJson) && receiptItemsJson.length > 0) {
+                    itemsContainer.innerHTML = '';
+                    
+                    receiptItemsJson.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'mb-2';
+                        const itemName = item.Name || 'Unknown Product';
+                        const itemQty = item.Qty || 0;
+                        const itemTotal = parseFloat(item.Total || 0).toFixed(2);
+                        
+                        itemDiv.innerHTML = `
+                            <div class="d-flex justify-content-between small">
+                                <span style="flex: 1;">${itemName}</span>
+                                <span style="width: 50px; text-align: center;">x${itemQty}</span>
+                                <span style="width: 80px; text-align: right;">৳${itemTotal}</span>
+                            </div>
+                        `;
+                        itemsContainer.appendChild(itemDiv);
+                    });
+                    console.log('Items rendered successfully');
+                } else {
+                    console.warn('No items to display or items is not an array');
+                }
+                
+                // Show receipt modal
+                const modalElement = document.getElementById('receiptModal');
+                if (modalElement) {
+                    const receiptModal = new bootstrap.Modal(modalElement);
+                    receiptModal.show();
+                    console.log('Receipt modal shown');
+                } else {
+                    console.error('Receipt modal element not found');
+                }
+            } catch (e) {
+                console.error('Error in receipt processing:', e);
+            }
+            
+            // Clear form on print close
+            const closeBtn = document.getElementById('closeReceiptBtn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    // Clear the form
+                    const form = document.getElementById('saleForm');
+                    if (form) form.reset();
+                    // Reset all checkboxes
+                    document.querySelectorAll('.product-check').forEach(cb => cb.checked = false);
+                    document.querySelectorAll('.product-qty').forEach(input => input.value = 0);
+                    // Update bill display
+                    if (typeof updateBill === 'function') {
+                        updateBill();
+                    }
+                });
+            }
+            
+            // Setup print functionality
+            const printBtn = document.getElementById('printReceiptBtn');
+            if (printBtn) {
+                printBtn.addEventListener('click', function() {
+                    window.print();
+                });
+            }
+        });
+            </text>
+        }
+        else
+        {
+            <text>
+        console.log('No receipt data available');
+            </text>
+        }
+        
         // Global billData to store current bill state
         let billData = { items: [] };
         
@@ -431,14 +614,7 @@
                 return;
             }
             
-            // Populate modal
-            document.getElementById('modalCustomerName').textContent = 
-                document.querySelector('input[name="customerName"]').value || '-';
-            document.getElementById('modalPhoneNumber').textContent = 
-                document.querySelector('input[name="phoneNumber"]').value || '-';
-            document.getElementById('modalNotes').textContent = 
-                document.querySelector('input[name="notes"]').value || '-';
-            
+            // Customer info inputs are now in modal - no need to populate
             const modalBillItems = document.getElementById('modalBillItems');
             modalBillItems.innerHTML = '';
             
@@ -561,7 +737,36 @@
             }
             
             // Remove any existing hidden inputs first
-            form.querySelectorAll('input[name="productIds"], input[name="quantities"]').forEach(el => el.remove());
+            form.querySelectorAll('input[name="productIds"], input[name="quantities"], input[name="customerName"], input[name="phoneNumber"], input[name="notes"]').forEach(el => el.remove());
+            
+            // Add customer info from modal to form
+            const customerName = document.getElementById('modalCustomerName').value;
+            const phoneNumber = document.getElementById('modalPhoneNumber').value;
+            const notes = document.getElementById('modalNotes').value;
+            
+            if (customerName) {
+                const nameInput = document.createElement('input');
+                nameInput.type = 'hidden';
+                nameInput.name = 'customerName';
+                nameInput.value = customerName;
+                form.appendChild(nameInput);
+            }
+            
+            if (phoneNumber) {
+                const phoneInput = document.createElement('input');
+                phoneInput.type = 'hidden';
+                phoneInput.name = 'phoneNumber';
+                phoneInput.value = phoneNumber;
+                form.appendChild(phoneInput);
+            }
+            
+            if (notes) {
+                const notesInput = document.createElement('input');
+                notesInput.type = 'hidden';
+                notesInput.name = 'notes';
+                notesInput.value = notes;
+                form.appendChild(notesInput);
+            }
             
             // Add hidden inputs for products and quantities
             billData.items.forEach(item => {
@@ -580,18 +785,11 @@
             
             console.log('Submitting form with products:', billData.items);
             
-            // Close modal and submit
+            // Close confirmation modal and submit
             const modalInstance = bootstrap.Modal.getInstance(document.getElementById('billModal'));
             if (modalInstance) {
                 modalInstance.hide();
             }
-            
-            // Add event listener to refresh page after form submission succeeds
-            form.addEventListener('submit', function() {
-                setTimeout(() => {
-                    location.reload();
-                }, 500);
-            }, { once: true });
             
             // Submit the form
             form.submit();
@@ -608,4 +806,28 @@
             });
         });
     </script>
+    
+    <style>
+        @@media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #receiptCard, #receiptCard * {
+                visibility: visible;
+            }
+            
+            #receiptCard {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 80mm;
+            }
+            
+            .modal, .modal-footer, .modal-header {
+                display: none !important;
+            }
+        }
+    </style>
 }

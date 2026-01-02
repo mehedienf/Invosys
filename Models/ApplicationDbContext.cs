@@ -15,5 +15,6 @@ namespace InventoryTracker.Data
         public DbSet<SalesTransaction> SalesTransactions { get; set; }
         public DbSet<SalesItem> SalesItems { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<ShopInfo> ShopInfos { get; set; }
      }
 }

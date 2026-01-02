@@ -26,12 +26,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9FZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Views/Account/EditShopInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9FZGl0U2hvcEluZm8uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Views/Account/ShopInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9TaG9wSW5mby5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Views/Account/Users.cshtml]

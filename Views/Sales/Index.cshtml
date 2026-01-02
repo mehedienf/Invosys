@@ -4,6 +4,8 @@
     ViewData["Title"] = "বিক্রয়";
 }
 
+@Html.AntiForgeryToken()
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="display-6 fw-bold text-primary mb-0">
@@ -89,7 +91,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <i class="bi bi-cart-x fs-1 text-muted"></i>
                                 <p class="text-muted mt-2">এখনো কোনো বিক্রয় হয়নি</p>
                                 <a asp-action="Create" class="btn btn-success btn-sm">
@@ -126,7 +128,164 @@
     </div>
 }
 
+<!-- Receipt Modal -->
+@{
+    var hasReceipt = TempData.ContainsKey("ReceiptId");
+    var receiptId = hasReceipt ? TempData["ReceiptId"] : null;
+    var receiptDate = hasReceipt ? TempData["ReceiptDate"] : null;
+    var receiptCustomer = hasReceipt ? TempData["ReceiptCustomer"] : null;
+    var receiptPhone = hasReceipt ? TempData["ReceiptPhone"] : null;
+    var receiptItems = hasReceipt ? TempData["ReceiptItems"]?.ToString() : null;
+    var receiptTotal = hasReceipt ? TempData["ReceiptTotal"] : null;
+}
+
+<div class="modal fade @(hasReceipt ? "show" : "")" id="receiptModal" tabindex="-1" @(hasReceipt ? "style=\"display: block;\"" : "")>
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>বিক্রয় রসিদ</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Receipt Card -->
+                <div class="card border-0" id="receiptCard" style="background: #f8f9fa; border: 2px dashed #28a745;">
+                    <div class="card-body p-4">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h4 class="mb-1">🛍️ আমাদের দোকান</h4>
+                            <p class="text-muted small mb-0">বিক্রয় রসিদ</p>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Receipt Details -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">রসিদ নম্বর:</span>
+                                <strong id="receiptNumber">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">তারিখ ও সময়:</span>
+                                <strong id="receiptDateTime">-</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Customer Info -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">গ্রাহক:</span>
+                                <strong id="receiptCustomerName">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">ফোন:</span>
+                                <strong id="receiptPhoneNumber">-</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Items -->
+                        <div class="mb-3">
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
+                                    <span style="flex: 1;">পণ্য</span>
+                                    <span style="width: 50px; text-align: center;">পরিমাণ</span>
+                                    <span style="width: 80px; text-align: right;">মূল্য</span>
+                                </div>
+                            </div>
+                            <div id="receiptItems"></div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Total -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong>মোট পরিমাণ:</strong>
+                                <h5 class="mb-0 text-success"><strong id="receiptTotalAmount">৳0.00</strong></h5>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Footer -->
+                        <div class="text-center text-muted small">
+                            <p class="mb-1">আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!</p>
+                            <p>আবার দেখা হবে!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeReceiptBtn" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>বাতিল
+                </button>
+                <button type="button" class="btn btn-success" id="printReceiptBtn" onclick="window.print();">
+                    <i class="bi bi-printer me-1"></i>রসিদ প্রিন্ট করুন
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (hasReceipt)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Populate receipt modal with data
+                const receiptNumberEl = document.getElementById('receiptNumber');
+                const receiptDateEl = document.getElementById('receiptDateTime');
+                const receiptCustomerEl = document.getElementById('receiptCustomerName');
+                const receiptPhoneEl = document.getElementById('receiptPhoneNumber');
+                const receiptTotalEl = document.getElementById('receiptTotalAmount');
+                const itemsContainer = document.getElementById('receiptItems');
+                
+                if (receiptNumberEl) receiptNumberEl.textContent = '@receiptId';
+                if (receiptDateEl) receiptDateEl.textContent = '@receiptDate';
+                if (receiptCustomerEl) receiptCustomerEl.textContent = '@Html.Raw(receiptCustomer ?? "অতিথি")';
+                if (receiptPhoneEl) receiptPhoneEl.textContent = '@Html.Raw(receiptPhone ?? "N/A")';
+                if (receiptTotalEl) receiptTotalEl.textContent = '৳@receiptTotal';
+                
+                // Parse and display receipt items
+                const receiptItemsJson = @Html.Raw(receiptItems ?? "[]");
+                
+                if (itemsContainer && receiptItemsJson && Array.isArray(receiptItemsJson) && receiptItemsJson.length > 0) {
+                    itemsContainer.innerHTML = '';
+                    
+                    receiptItemsJson.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'mb-2';
+                        const itemName = item.Name || 'Unknown Product';
+                        const itemQty = item.Qty || 0;
+                        const itemTotal = parseFloat(item.Total || 0).toFixed(2);
+                        
+                        itemDiv.innerHTML = `
+                            <div class="d-flex justify-content-between small">
+                                <span style="flex: 1;">` + itemName + `</span>
+                                <span style="width: 50px; text-align: center;">x` + itemQty + `</span>
+                                <span style="width: 80px; text-align: right;">৳` + itemTotal + `</span>
+                            </div>
+                        `;
+                        itemsContainer.appendChild(itemDiv);
+                    });
+                }
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error displaying receipt:', error);
+            }
+        });
+    </script>
+}
+
 <script>
+
     // Real-time sales search by customer name or phone number
     document.getElementById('saleSearch')?.addEventListener('keyup', function(e) {
         const searchText = e.target.value.trim().toLowerCase();
@@ -147,7 +306,7 @@
             if (!noResultsRow) {
                 noResultsRow = document.createElement('tr');
                 noResultsRow.className = 'no-results-row';
-                noResultsRow.innerHTML = `<td colspan="6" class="text-center py-4"><i class="bi bi-inbox fs-1 text-muted"></i><p class="text-muted mt-2">কোনো মিল খুঁজে পাওয়া যায়নি</p></td>`;
+                noResultsRow.innerHTML = `<td colspan="7" class="text-center py-4"><i class="bi bi-inbox fs-1 text-muted"></i><p class="text-muted mt-2">কোনো মিল খুঁজে পাওয়া যায়নি</p></td>`;
                 tbody.appendChild(noResultsRow);
             }
         } else if (noResultsRow) {

@@ -102,6 +102,27 @@ namespace InventoryTracker.Controllers
             _context.SalesTransactions.Add(transaction);
             await _context.SaveChangesAsync();
 
+            // Reload transaction with items and products
+            var savedTransaction = await _context.SalesTransactions
+                .Include(s => s.SalesItems!)
+                .ThenInclude(si => si.Product)
+                .FirstOrDefaultAsync(s => s.Id == transaction.Id);
+
+            // Receipt data pass through TempData
+            TempData["ReceiptId"] = savedTransaction!.Id;
+            TempData["ReceiptDate"] = savedTransaction.SaleDate.ToString("dd/MM/yyyy HH:mm");
+            TempData["ReceiptCustomer"] = savedTransaction.CustomerName ?? "অতিথি";
+            TempData["ReceiptPhone"] = savedTransaction.PhoneNumber ?? "N/A";
+            TempData["ReceiptItems"] = System.Text.Json.JsonSerializer.Serialize(
+                savedTransaction.SalesItems!.Select(si => new { 
+                    Name = si.Product!.Name, 
+                    Qty = si.QuantitySold, 
+                    Price = si.UnitPrice,
+                    Total = si.QuantitySold * si.UnitPrice
+                }).ToList()
+            );
+            TempData["ReceiptTotal"] = savedTransaction.TotalAmount.ToString("0.00");
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -124,6 +145,51 @@ namespace InventoryTracker.Controllers
             }
 
             return View(transaction);
+        }
+
+        // POST: Sales/DeleteMultiple
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMultiple([FromBody] int[] saleIds)
+        {
+            if (saleIds == null || saleIds.Length == 0)
+            {
+                return BadRequest("No sales selected");
+            }
+
+            try
+            {
+                var salesToDelete = await _context.SalesTransactions
+                    .Include(s => s.SalesItems!)
+                    .ThenInclude(si => si.Product)
+                    .Where(s => saleIds.Contains(s.Id))
+                    .ToListAsync();
+
+                foreach (var sale in salesToDelete)
+                {
+                    // Restore product quantities
+                    if (sale.SalesItems != null)
+                    {
+                        foreach (var item in sale.SalesItems)
+                        {
+                            if (item.Product != null)
+                            {
+                                item.Product.Quantity += item.QuantitySold;
+                                _context.Update(item.Product);
+                            }
+                        }
+                    }
+
+                    _context.SalesTransactions.Remove(sale);
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting sales: {ex.Message}");
+            }
         }
     }
 }

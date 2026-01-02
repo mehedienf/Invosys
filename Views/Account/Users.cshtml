@@ -81,15 +81,24 @@
                             </td>
                             <td>@user.CreatedAt.ToString("dd MMM yyyy")</td>
                             <td class="text-center">
-                                <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" 
-                                      onsubmit="return confirm('আপনি কি নিশ্চিত?')">
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                @if (user.Username != "system")
+                                {
+                                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" 
+                                          onsubmit="return confirm('আপনি কি নিশ্চিত?')">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">
+                                        <i class="bi bi-lock me-1"></i>সুরক্ষিত
+                                    </span>
+                                }
                             </td>
                         </tr>
                     }
