@@ -139,7 +139,7 @@
     var receiptTotal = hasReceipt ? TempData["ReceiptTotal"] : null;
 }
 
-<div class="modal fade @(hasReceipt ? "show" : "")" id="receiptModal" tabindex="-1" @(hasReceipt ? "style=\"display: block;\"" : "")>
+<div class="modal fade @(hasReceipt ? "show" : "")" id="receiptModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" @(hasReceipt ? "style=\"display: block;\"" : "")>
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
@@ -223,7 +223,7 @@
                 <button type="button" class="btn btn-secondary" id="closeReceiptBtn" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-1"></i>বাতিল
                 </button>
-                <button type="button" class="btn btn-success" id="printReceiptBtn" onclick="window.print();">
+                <button type="button" class="btn btn-success" id="printReceiptBtn" onclick="printReceipt();">
                     <i class="bi bi-printer me-1"></i>রসিদ প্রিন্ট করুন
                 </button>
             </div>
@@ -285,6 +285,35 @@
 }
 
 <script>
+    function printReceipt() {
+        const receiptCard = document.getElementById('receiptCard').outerHTML;
+        const printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<!DOCTYPE html>');
+        printWindow.document.write('<html><head><title>বিক্রয় রসিদ</title>');
+        printWindow.document.write('<meta charset="UTF-8">');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { margin: 20px; font-family: Arial, sans-serif; }');
+        printWindow.document.write('.card { background: white; border: none; padding: 20px; }');
+        printWindow.document.write('.text-center { text-align: center; }');
+        printWindow.document.write('.d-flex { display: flex; justify-content: space-between; }');
+        printWindow.document.write('hr { border: 1px solid #999; margin: 10px 0; }');
+        printWindow.document.write('h4, h5 { margin: 5px 0; }');
+        printWindow.document.write('.small { font-size: 12px; }');
+        printWindow.document.write('.mb-0 { margin-bottom: 0; }');
+        printWindow.document.write('.mb-1 { margin-bottom: 5px; }');
+        printWindow.document.write('.mb-2 { margin-bottom: 10px; }');
+        printWindow.document.write('.mb-3 { margin-bottom: 15px; }');
+        printWindow.document.write('.mb-4 { margin-bottom: 20px; }');
+        printWindow.document.write('.p-4 { padding: 20px; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(receiptCard);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        
+        setTimeout(() => {
+            printWindow.print();
+        }, 250);
+    }
 
     // Real-time sales search by customer name or phone number
     document.getElementById('saleSearch')?.addEventListener('keyup', function(e) {
@@ -313,4 +342,14 @@
             noResultsRow.remove();
         }
     });
-</script>
+    </script>
+
+<style>
+    #receiptModal.modal.show {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .modal-backdrop {
+        opacity: 0.8 !important;
+    }
+</style>

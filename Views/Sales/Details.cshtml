@@ -97,7 +97,7 @@
                     <a asp-action="Index" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-1"></i>ফিরে যান
                     </a>
-                    <button class="btn btn-primary" onclick="window.print()">
+                    <button type="button" class="btn btn-primary" onclick="printReceipt();">
                         <i class="bi bi-printer me-1"></i>প্রিন্ট
                     </button>
                 </div>
@@ -105,3 +105,119 @@
         </div>
     </div>
 </div>
+
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>বিক্রয় রসিদ</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Receipt Card -->
+                <div class="card border-0" id="receiptCard" style="background: #f8f9fa; border: 2px dashed #28a745;">
+                    <div class="card-body p-4">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h4 class="mb-1">🛍️ আমাদের দোকান</h4>
+                            <p class="text-muted small mb-0">বিক্রয় রসিদ</p>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Receipt Details -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">রসিদ নম্বর:</span>
+                                <strong>#@Model.Id</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">তারিখ ও সময়:</span>
+                                <strong>@Model.SaleDate.ToString("dd/MM/yyyy HH:mm")</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Customer Info -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">গ্রাহক:</span>
+                                <strong>@(string.IsNullOrEmpty(Model.CustomerName) ? "অতিথি" : Model.CustomerName)</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">ফোন:</span>
+                                <strong>@(string.IsNullOrEmpty(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Items -->
+                        <div class="mb-3">
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
+                                    <span style="flex: 1;">পণ্য</span>
+                                    <span style="width: 70px; text-align: center;">পরিমাণ</span>
+                                    <span style="width: 100px; text-align: right;">মূল্য</span>
+                                </div>
+                            </div>
+                            @if (Model.SalesItems != null && Model.SalesItems.Any())
+                            {
+                                @foreach (var item in Model.SalesItems)
+                                {
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between small">
+                                            <span style="flex: 1;">@item.Product?.Name</span>
+                                            <span style="width: 70px; text-align: center;">x@(item.QuantitySold)</span>
+                                            <span style="width: 100px; text-align: right;">৳@((item.UnitPrice * item.QuantitySold).ToString("N2"))</span>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Total -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong>মোট পরিমাণ:</strong>
+                                <h5 class="mb-0 text-success"><strong>৳@Model.TotalAmount.ToString("N2")</strong></h5>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2" />
+                        
+                        <!-- Footer -->
+                        <div class="text-center text-muted small">
+                            <p class="mb-1">আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!</p>
+                            <p>আবার দেখা হবে!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বন্ধ করুন</button>
+                <button type="button" class="btn btn-success" onclick="printReceipt();">
+                    <i class="bi bi-printer me-1"></i>প্রিন্ট করুন
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Receipt Script -->
+<script src="~/js/receipt-print.js"></script>
+
+<style>
+    #receiptModal.modal.show {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .modal-backdrop {
+        opacity: 0.8 !important;
+    }
+</style>
