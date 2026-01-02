@@ -23,4 +23,4 @@ EXPOSE ${PORT:-8080}
 VOLUME ["/data"]
 
 # Run the application
-ENTRYPOINT ["dotnet", "Inventory_and_Sales_Tracker.dll"]
+ENTRYPOINT ["dotnet", "InvoSys.dll"]
