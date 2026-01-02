@@ -122,3 +122,4 @@ opencover/
 # Others
 .DS_Store
 .dockerignore
+.git/gitignore
