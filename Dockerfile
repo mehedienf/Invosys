@@ -16,6 +16,7 @@ RUN mkdir -p /data
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
+ENV ASPNETCORE_DATAPROTECTION_KEYS_FOLDER=/data/dataprotection-keys
 
 EXPOSE ${PORT:-8080}
 
