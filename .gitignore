@@ -47,10 +47,6 @@ logs/
 .nuget/
 
 # Entity Framework
-migrations/
-*.db
-*.sqlite
-*.sqlite3
 
 # Application settings (local configurations)
 appsettings.Development.json
