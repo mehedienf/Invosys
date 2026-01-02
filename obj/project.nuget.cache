@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "vfeRW5W30hs=",
+  "dgSpecHash": "EB6wGX2k2lc=",
   "success": true,
-  "projectFilePath": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Inventory_and_Sales_Tracker.csproj",
+  "projectFilePath": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/InvoSys.csproj",
   "expectedPackageFiles": [
     "/Users/mehedienam/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/mehedienam/.nuget/packages/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",

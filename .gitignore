@@ -98,6 +98,9 @@ yarn-error.log
 paket-files/
 
 # Build artifacts
+
+# Documentation
+README.md
 artifacts/
 publish/
 PublishProfiles/
@@ -115,6 +118,3 @@ opencover/
 *.bak.db
 *.backup
 *.restore
-
-# note
-*.md

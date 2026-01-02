@@ -1,8 +1,8 @@
 {
   "Files": [
     {
-      "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/obj/Debug/net8.0/scopedcss/projectbundle/Inventory_and_Sales_Tracker.bundle.scp.css",
-      "PackagePath": "staticwebassets/Inventory_and_Sales_Tracker.bundle.scp.css"
+      "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/obj/Debug/net8.0/scopedcss/projectbundle/InvoSys.bundle.scp.css",
+      "PackagePath": "staticwebassets/InvoSys.bundle.scp.css"
     },
     {
       "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/wwwroot/css/site.css",
@@ -13,8 +13,12 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
-      "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/wwwroot/js/site.js",
-      "PackagePath": "staticwebassets/js/site.js"
+      "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/wwwroot/js/receipt-print.js",
+      "PackagePath": "staticwebassets/js/receipt-print.js"
+    },
+    {
+      "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/wwwroot/js/sales-index.js",
+      "PackagePath": "staticwebassets/js/sales-index.js"
     },
     {
       "Id": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/wwwroot/lib/bootstrap/LICENSE",
@@ -245,20 +249,20 @@
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.min.map"
     },
     {
-      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.Inventory_and_Sales_Tracker.Microsoft.AspNetCore.StaticWebAssets.props",
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.InvoSys.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
     {
-      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.Inventory_and_Sales_Tracker.props",
-      "PackagePath": "build\\Inventory_and_Sales_Tracker.props"
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.InvoSys.props",
+      "PackagePath": "build\\InvoSys.props"
     },
     {
-      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Inventory_and_Sales_Tracker.props",
-      "PackagePath": "buildMultiTargeting\\Inventory_and_Sales_Tracker.props"
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.InvoSys.props",
+      "PackagePath": "buildMultiTargeting\\InvoSys.props"
     },
     {
-      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Inventory_and_Sales_Tracker.props",
-      "PackagePath": "buildTransitive\\Inventory_and_Sales_Tracker.props"
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.InvoSys.props",
+      "PackagePath": "buildTransitive\\InvoSys.props"
     }
   ],
   "ElementsToRemove": []

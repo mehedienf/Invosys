@@ -2560,9 +2560,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Inventory_and_Sales_Tracker.csproj",
-      "projectName": "Inventory_and_Sales_Tracker",
-      "projectPath": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/Inventory_and_Sales_Tracker.csproj",
+      "projectUniqueName": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/InvoSys.csproj",
+      "projectName": "InvoSys",
+      "projectPath": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/InvoSys.csproj",
       "packagesPath": "/Users/mehedienam/.nuget/packages/",
       "outputPath": "/Volumes/Volume 1/Project/inventory-and-sales-tracker/Inventory_and_Sales_Tracker/obj/",
       "projectStyle": "PackageReference",
