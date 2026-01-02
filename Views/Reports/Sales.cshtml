@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "বিক্রয় রিপোর্ট";
+    var topProducts = ViewBag.TopSellingProducts as List<dynamic> ?? new List<dynamic>();
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -57,6 +58,63 @@
     </div>
 </div>
 
+<!-- Product Wise Sales Summary -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-boxes me-2"></i>বেশি বিক্রয় অনুযায়ী পণ্যের তালিকা</h5>
+    </div>
+    <div class="card-body">
+        @{
+            var allSalesItems = Model != null ? Model.SelectMany(s => s.SalesItems ?? new List<InventoryTracker.Models.SalesItem>()).ToList() : new List<InventoryTracker.Models.SalesItem>();
+            var productSummary = allSalesItems
+                .GroupBy(si => si.ProductId)
+                .Select(g => new {
+                    ProductId = g.Key,
+                    ProductName = g.FirstOrDefault()?.Product?.Name ?? $"পণ্য #{g.Key}",
+                    TotalQuantity = g.Sum(x => x.QuantitySold),
+                    TransactionCount = g.Select(x => x.TransactionId).Distinct().Count()
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .ToList();
+        }
+        
+        @if (productSummary.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>পণ্য নাম</th>
+                            <th class="text-center">মোট বিক্রয় পরিমাণ</th>
+                            <th class="text-center">বিক্রয় সংখ্যা</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in productSummary)
+                        {
+                            <tr>
+                                <td><strong>@product.ProductName</strong></td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">@product.TotalQuantity পিস</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">@product.TransactionCount বার</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>কোনো বিক্রয় আইটেম নেই
+            </div>
+        }
+    </div>
+</div>
+
 <!-- Sales Table -->
 <div class="card shadow">
     <div class="card-header bg-primary text-white d-flex justify-content-between">
@@ -82,7 +140,7 @@
                     {
                         @foreach (var sale in Model)
                         {
-                            <tr>
+                            <tr class="table-primary fw-bold">
                                 <td><span class="badge bg-primary">#@sale.Id</span></td>
                                 <td>@(string.IsNullOrEmpty(sale.CustomerName) ? "সাধারণ গ্রাহক" : sale.CustomerName)</td>
                                 <td>@sale.SaleDate.ToString("dd MMM yyyy, hh:mm tt")</td>
@@ -91,6 +149,27 @@
                                 </td>
                                 <td class="text-end text-success fw-bold">৳@sale.TotalAmount.ToString("N2")</td>
                             </tr>
+                            
+                            <!-- Sales Items for this Transaction -->
+                            @if (sale.SalesItems != null && sale.SalesItems.Any())
+                            {
+                                @foreach (var item in sale.SalesItems)
+                                {
+                                    <tr class="table-light">
+                                        <td></td>
+                                        <td colspan="2">
+                                            <i class="bi bi-box-seam text-muted me-2"></i>
+                                            <strong>@(item.Product?.Name ?? "পণ্য নাম জানা যায়নি")</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-success">@item.QuantitySold পিস</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <small>@(item.QuantitySold) × ৳@(item.UnitPrice.ToString("N2")) = <strong>@($"৳{Math.Round((decimal)item.QuantitySold * item.UnitPrice, 2):N2}")</strong></small>
+                                        </td>
+                                    </tr>
+                                }
+                            }
                         }
                     }
                     else

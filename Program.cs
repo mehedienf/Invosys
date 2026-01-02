@@ -7,24 +7,24 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Render এর জন্য PORT environment variable থেকে পোর্ট নিন
+// PORT select from environment variable
 builder.WebHost.ConfigureKestrel(options =>
 {
     var port = Environment.GetEnvironmentVariable("PORT") ?? "9999";
     options.ListenAnyIP(int.Parse(port));
 });
 
-// 1. Connection String পড়ুন (SQLite - Internal Database)
+// Connection String read
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// 2. ApplicationDbContext রেজিস্ট্রেশন করুন (SQLite)
+// ApplicationDbContext register
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlite(connectionString);
 });
 
-// 3. Authentication সেটআপ
+// Authentication setup
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -71,7 +71,120 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 
-    // Seed Users (যদি কোনো ইউজার না থাকে)
+    // Seed Sales Transactions (যদি কোনো বিক্রয় না থাকে)
+    if (!context.SalesTransactions.Any())
+    {
+        var salesTransactions = new List<SalesTransaction>
+        {
+            new SalesTransaction
+            {
+                SaleDate = DateTime.Now.AddDays(-5),
+                CustomerName = "রফিকুল ইসলাম",
+                TotalAmount = 325.00M,
+                Notes = "নিয়মিত গ্রাহক"
+            },
+            new SalesTransaction
+            {
+                SaleDate = DateTime.Now.AddDays(-3),
+                CustomerName = "নাজমা বেগম",
+                TotalAmount = 420.00M,
+                Notes = "বাল্ক অর্ডার"
+            },
+            new SalesTransaction
+            {
+                SaleDate = DateTime.Now.AddDays(-1),
+                CustomerName = "করিম আহমেদ",
+                TotalAmount = 540.00M,
+                Notes = "নগদ পেমেন্ট"
+            },
+            new SalesTransaction
+            {
+                SaleDate = DateTime.Now,
+                CustomerName = "ফাতিমা খান",
+                TotalAmount = 650.00M,
+                Notes = "দ্রুত ডেলিভারি"
+            }
+        };
+
+        context.SalesTransactions.AddRange(salesTransactions);
+        context.SaveChanges();
+
+        // এখন Sales Items যোগ করুন (প্রতিটি transaction এর জন্য)
+        var allProducts = context.Products.ToList();
+        var allTransactions = context.SalesTransactions.ToList();
+
+        if (allTransactions.Count > 0 && allProducts.Count > 0)
+        {
+            var salesItems = new List<SalesItem>();
+
+            // Transaction 1: চাল এবং ডাল
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[0].Id,
+                ProductId = allProducts[0].Id, // চাল
+                QuantitySold = 5,
+                UnitPrice = 65.00M
+            });
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[0].Id,
+                ProductId = allProducts[1].Id, // ডাল
+                QuantitySold = 2,
+                UnitPrice = 120.00M
+            });
+
+            // Transaction 2: তেল এবং চিনি
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[1].Id,
+                ProductId = allProducts[2].Id, // তেল
+                QuantitySold = 2,
+                UnitPrice = 180.00M
+            });
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[1].Id,
+                ProductId = allProducts[3].Id, // চিনি
+                QuantitySold = 1,
+                UnitPrice = 110.00M
+            });
+
+            // Transaction 3: আটা এবং লবণ
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[2].Id,
+                ProductId = allProducts[7].Id, // আটা
+                QuantitySold = 3,
+                UnitPrice = 90.00M
+            });
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[2].Id,
+                ProductId = allProducts[4].Id, // লবণ
+                QuantitySold = 5,
+                UnitPrice = 30.00M
+            });
+
+            // Transaction 4: শ্যাম্পু এবং সাবান
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[3].Id,
+                ProductId = allProducts[9].Id, // শ্যাম্পু
+                QuantitySold = 2,
+                UnitPrice = 150.00M
+            });
+            salesItems.Add(new SalesItem
+            {
+                TransactionId = allTransactions[3].Id,
+                ProductId = allProducts[8].Id, // সাবান
+                QuantitySold = 4,
+                UnitPrice = 45.00M
+            });
+
+            context.SalesItems.AddRange(salesItems);
+            context.SaveChanges();
+        }
+    }
     if (!context.Users.Any())
     {
         // Password hash function

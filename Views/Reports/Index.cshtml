@@ -2,6 +2,7 @@
     ViewData["Title"] = "রিপোর্ট";
     var lowStockProducts = ViewBag.LowStockProducts as List<InventoryTracker.Models.Product> ?? new List<InventoryTracker.Models.Product>();
     var recentSales = ViewBag.RecentSales as List<InventoryTracker.Models.SalesTransaction> ?? new List<InventoryTracker.Models.SalesTransaction>();
+    var topProducts = ViewBag.TopProducts as List<dynamic> ?? new List<dynamic>();
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
