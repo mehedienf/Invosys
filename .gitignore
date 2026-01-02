@@ -118,3 +118,7 @@ opencover/
 *.bak.db
 *.backup
 *.restore
+
+# Others
+.DS_Store
+.dockerignore
