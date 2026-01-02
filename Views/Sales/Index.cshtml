@@ -16,6 +16,14 @@
     </a>
 </div>
 
+<!-- Search Section -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <label class="form-label"><i class="bi bi-search me-1"></i>বিক্রয় খুঁজুন</label>
+        <input type="text" id="saleSearch" class="form-control" placeholder="গ্রাহকের নাম বা ফোন নম্বর দ্বারা খুঁজুন..." />
+    </div>
+</div>
+
 <div class="card shadow">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -24,6 +32,7 @@
                     <tr>
                         <th>বিক্রয় #</th>
                         <th>গ্রাহক</th>
+                        <th>ফোন নম্বর</th>
                         <th>তারিখ</th>
                         <th>আইটেম সংখ্যা</th>
                         <th class="text-end">মোট মূল্য</th>
@@ -35,7 +44,7 @@
                     {
                         @foreach (var sale in Model)
                         {
-                            <tr>
+                            <tr class="sale-row">
                                 <td>
                                     <span class="badge bg-primary">#@sale.Id</span>
                                 </td>
@@ -47,6 +56,16 @@
                                     else
                                     {
                                         <span class="text-muted">সাধারণ গ্রাহক</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(sale.PhoneNumber))
+                                    {
+                                        <i class="bi bi-telephone me-1"></i>@sale.PhoneNumber
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
                                     }
                                 </td>
                                 <td>
@@ -106,3 +125,33 @@
         </div>
     </div>
 }
+
+<script>
+    // Real-time sales search by customer name or phone number
+    document.getElementById('saleSearch')?.addEventListener('keyup', function(e) {
+        const searchText = e.target.value.trim().toLowerCase();
+        let visibleCount = 0;
+        
+        document.querySelectorAll('.sale-row').forEach(row => {
+            const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const phoneNumber = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            const matches = customerName.includes(searchText) || phoneNumber.includes(searchText);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+        
+        // Show/hide no results message
+        const tbody = document.querySelector('tbody');
+        let noResultsRow = tbody.querySelector('.no-results-row');
+        if (visibleCount === 0 && document.querySelectorAll('.sale-row').length > 0) {
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.className = 'no-results-row';
+                noResultsRow.innerHTML = `<td colspan="6" class="text-center py-4"><i class="bi bi-inbox fs-1 text-muted"></i><p class="text-muted mt-2">কোনো মিল খুঁজে পাওয়া যায়নি</p></td>`;
+                tbody.appendChild(noResultsRow);
+            }
+        } else if (noResultsRow) {
+            noResultsRow.remove();
+        }
+    });
+</script>

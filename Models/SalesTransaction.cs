@@ -16,6 +16,11 @@ namespace InventoryTracker.Models
         [StringLength(100)]
         public string? CustomerName { get; set; }
 
+        [Display(Name = "গ্রাহকের ফোন নম্বর")]
+        [StringLength(20)]
+        [Phone]
+        public string? PhoneNumber { get; set; }
+
         [Display(Name = "মোট মূল্য")]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal TotalAmount { get; set; }

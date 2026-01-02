@@ -23,6 +23,14 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">
+                                <i class="bi bi-telephone me-1"></i>ফোন নম্বর (ঐচ্ছিক)
+                            </label>
+                            <input type="tel" name="phoneNumber" class="form-control" placeholder="০১XXX-XXXXXX" />
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">
                                 <i class="bi bi-sticky me-1"></i>মন্তব্য (ঐচ্ছিক)
                             </label>
                             <input type="text" name="notes" class="form-control" placeholder="বিক্রয়ের মন্তব্য" />
@@ -37,7 +45,7 @@
                             <label class="form-label fw-bold">
                                 <i class="bi bi-search me-1"></i>পণ্য খুঁজুন
                             </label>
-                            <input type="text" id="productSearch" class="form-control" placeholder="পণ্যের নাম দ্বারা খুঁজুন..." />
+                            <input type="text" id="productSearch" class="form-control" placeholder="পণ্যের নাম বা ক্যাটাগরি দ্বারা খুঁজুন..." />
                         </div>
                     }
                     
@@ -49,6 +57,7 @@
                                     <tr>
                                         <th>নির্বাচন</th>
                                         <th>পণ্যের নাম</th>
+                                        <th>ক্যাটাগরি</th>
                                         <th>মূল্য</th>
                                         <th>স্টকে আছে</th>
                                         <th>পরিমাণ</th>
@@ -62,19 +71,31 @@
                                                 <input type="checkbox" class="form-check-input product-check" 
                                                        data-product-id="@product.Id" 
                                                        data-product-name="@product.Name"
+                                                       data-product-category="@product.Category"
                                                        data-product-price="@product.Price" />
                                             </td>
                                             <td><strong>@product.Name</strong></td>
+                                            <td><span class="badge bg-info">@product.Category</span></td>
                                             <td class="text-success">৳@product.Price.ToString("N2")</td>
                                             <td>
                                                 <span class="badge @(product.Quantity < 10 ? "bg-warning" : "bg-success")">
                                                     @product.Quantity
                                                 </span>
                                             </td>
-                                            <td style="width: 150px;">
-                                                <input type="number" class="form-control form-control-sm product-qty" 
-                                                       value="0" min="0" max="@product.Quantity" 
-                                                       data-product-id="@product.Id" />
+                                            <td style="width: 200px;">
+                                                <div class="input-group input-group-sm">
+                                                    <button type="button" class="btn btn-outline-danger qty-decrease" 
+                                                            data-product-id="@product.Id" title="কমান">
+                                                        <i class="bi bi-dash-lg"></i>
+                                                    </button>
+                                                    <input type="number" class="form-control text-center product-qty" 
+                                                           value="0" min="0" max="@product.Quantity" 
+                                                           data-product-id="@product.Id" />
+                                                    <button type="button" class="btn btn-outline-success qty-increase" 
+                                                            data-product-id="@product.Id" data-max="@product.Quantity" title="বাড়ান">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -93,14 +114,13 @@
                     
                     <!-- Live Bill Summary -->
                     <div class="row mb-4">
-                        <div class="col-lg-8"></div>
-                        <div class="col-lg-4">
+                        <div class="col-12">
                             <div class="card bg-light border-success" id="billCard" style="display: none;">
                                 <div class="card-header bg-success text-white">
                                     <h6 class="mb-0"><i class="bi bi-receipt me-2"></i>বিল সারসংক্ষেপ</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div id="billItemsList" style="max-height: 250px; overflow-y: auto; margin-bottom: 10px;">
+                                    <div id="billItemsList" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px;">
                                     </div>
                                     <hr />
                                     <div class="mb-3">
@@ -109,24 +129,23 @@
                                             <span id="billQty" class="badge bg-info">0</span>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div class="mb-4">
                                         <div class="d-flex justify-content-between">
                                             <strong>মোট মূল্য:</strong>
                                             <h5 class="mb-0"><span id="billTotal" class="text-success">৳0.00</span></h5>
                                         </div>
                                     </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-success" id="reviewBtn" @(products.Any() ? "" : "disabled")>
+                                            <i class="bi bi-check-circle me-1"></i>বিল পরীক্ষা করুন
+                                        </button>
+                                        <a asp-action="Index" class="btn btn-outline-secondary">
+                                            <i class="bi bi-arrow-left me-1"></i>ফিরে যান
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-success" id="reviewBtn" @(products.Any() ? "" : "disabled")>
-                            <i class="bi bi-check-circle me-1"></i>বিল পরীক্ষা করুন
-                        </button>
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>ফিরে যান
-                        </a>
                     </div>
                 </form>
             </div>
@@ -148,6 +167,10 @@
                     <p id="modalCustomerName" class="form-control-plaintext">-</p>
                 </div>
                 <div class="mb-3">
+                    <label class="form-label fw-bold">ফোন নম্বর (ঐচ্ছিক):</label>
+                    <p id="modalPhoneNumber" class="form-control-plaintext">-</p>
+                </div>
+                <div class="mb-3">
                     <label class="form-label fw-bold">মন্তব্য (ঐচ্ছিক):</label>
                     <p id="modalNotes" class="form-control-plaintext">-</p>
                 </div>
@@ -158,8 +181,9 @@
                         <tr>
                             <th>পণ্য</th>
                             <th class="text-end">দাম</th>
-                            <th class="text-end">পরিমাণ</th>
+                            <th class="text-center">পরিমাণ</th>
                             <th class="text-end">মোট</th>
+                            <th class="text-center" style="width: 80px;"></th>
                         </tr>
                     </thead>
                     <tbody id="modalBillItems">
@@ -197,6 +221,9 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     
     <script>
+        // Global billData to store current bill state
+        let billData = { items: [] };
+        
         // Update bill display
         function updateBill() {
             const items = [];
@@ -224,6 +251,9 @@
                 }
             });
             
+            // Store in global billData
+            billData.items = items;
+            
             // Update bill card
             const billCard = document.getElementById('billCard');
             const billItemsList = document.getElementById('billItemsList');
@@ -232,13 +262,24 @@
                 billCard.style.display = 'block';
                 billItemsList.innerHTML = '';
                 
-                items.forEach(item => {
+                items.forEach((item, index) => {
                     const div = document.createElement('div');
                     div.className = 'border-bottom pb-2 mb-2';
+                    div.setAttribute('data-bill-item-index', index);
                     div.innerHTML = `
-                        <div class="d-flex justify-content-between mb-1">
-                            <strong>${item.name}</strong>
-                            <span class="badge bg-secondary">${item.quantity}</span>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong>${item.name}</strong>
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-danger bill-qty-decrease" data-item-index="${index}" title="কমান">
+                                    <i class="bi bi-dash-lg"></i>
+                                </button>
+                                <span class="badge bg-secondary" style="display: inline-block; padding: 0.5em 0.75em; margin: 0 5px;">${item.quantity}</span>
+                                <button type="button" class="btn btn-sm btn-outline-success bill-qty-increase" data-item-index="${index}" title="বাড়ান">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="d-flex justify-content-between text-muted small">
                             <span>৳${item.price.toFixed(2)} × ${item.quantity}</span>
@@ -257,20 +298,133 @@
             return { items, totalPrice, totalQty };
         }
         
+        // Event delegation for bill summary buttons
+        document.getElementById('billItemsList').addEventListener('click', function(e) {
+            const btn = e.target.closest('.bill-qty-increase, .bill-qty-decrease');
+            if (!btn) return;
+            
+            e.preventDefault();
+            const index = parseInt(btn.getAttribute('data-item-index'));
+            const item = billData.items[index];
+            
+            if (btn.classList.contains('bill-qty-increase')) {
+                const productId = item.id;
+                const maxQty = parseInt(document.querySelector(`.product-qty[data-product-id="${productId}"]`)?.max) || 999;
+                if (item.quantity < maxQty) {
+                    item.quantity += 1;
+                    item.total = item.price * item.quantity;
+                    // Update main product qty input
+                    document.querySelector(`.product-qty[data-product-id="${productId}"]`).value = item.quantity;
+                    updateBill();
+                }
+            } else if (btn.classList.contains('bill-qty-decrease')) {
+                const productId = item.id;
+                if (item.quantity > 1) {
+                    item.quantity -= 1;
+                    item.total = item.price * item.quantity;
+                    // Update main product qty input
+                    document.querySelector(`.product-qty[data-product-id="${productId}"]`).value = item.quantity;
+                    updateBill();
+                } else if (item.quantity === 1) {
+                    // When quantity reaches 0, uncheck the product and set quantity to 0
+                    const checkbox = document.querySelector(`.product-check[data-product-id="${productId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                    document.querySelector(`.product-qty[data-product-id="${productId}"]`).value = 0;
+                    updateBill();
+                }
+            }
+        });
+        
+        // Function to update bill when modal quantities change
+        function updateBillFromModal() {
+            // Update main table quantities
+            document.querySelectorAll('tr[data-item-index]').forEach((row, index) => {
+                const qtyCell = row.querySelector('td:nth-child(3)');
+                const totalCell = row.querySelector('td:nth-child(4)');
+                const billData_current = billData.items[index];
+                if (qtyCell && totalCell && billData_current) {
+                    qtyCell.textContent = billData_current.quantity;
+                    totalCell.textContent = '৳' + billData_current.total.toFixed(2);
+                }
+            });
+            
+            // Recalculate totals
+            let totalQty = 0;
+            let totalPrice = 0;
+            billData.items.forEach(item => {
+                totalQty += item.quantity;
+                totalPrice += item.total;
+            });
+            
+            // Update modal totals
+            document.getElementById('modalTotalQty').textContent = totalQty;
+            document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+        }
+        
+        // Increment/Decrement buttons
+        document.querySelectorAll('.qty-increase').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.dataset.productId;
+                const maxQty = parseInt(this.dataset.max);
+                const input = document.querySelector(`.product-qty[data-product-id="${productId}"]`);
+                if (input) {
+                    let currentVal = parseInt(input.value) || 0;
+                    if (currentVal < maxQty) {
+                        input.value = currentVal + 1;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
+        
+        document.querySelectorAll('.qty-decrease').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.dataset.productId;
+                const input = document.querySelector(`.product-qty[data-product-id="${productId}"]`);
+                if (input) {
+                    let currentVal = parseInt(input.value) || 0;
+                    if (currentVal > 0) {
+                        input.value = currentVal - 1;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
+        
         // Event listeners for updates
         document.querySelectorAll('.product-check').forEach(checkbox => {
             checkbox.addEventListener('change', updateBill);
         });
         
         document.querySelectorAll('.product-qty').forEach(input => {
-            input.addEventListener('change', updateBill);
-            input.addEventListener('keyup', updateBill);
+            input.addEventListener('change', function(e) {
+                // Auto check/uncheck product checkbox based on quantity
+                const productId = this.dataset.productId;
+                const checkbox = document.querySelector(`.product-check[data-product-id="${productId}"]`);
+                if (checkbox) {
+                    checkbox.checked = parseInt(this.value) > 0;
+                }
+                updateBill();
+            });
+            input.addEventListener('keyup', function(e) {
+                // Auto check/uncheck product checkbox based on quantity
+                const productId = this.dataset.productId;
+                const checkbox = document.querySelector(`.product-check[data-product-id="${productId}"]`);
+                if (checkbox) {
+                    checkbox.checked = parseInt(this.value) > 0;
+                }
+                updateBill();
+            });
         });
         
         // Review button - show confirmation modal
         document.getElementById('reviewBtn')?.addEventListener('click', function(e) {
             e.preventDefault();
-            const billData = updateBill();
+            updateBill(); // This populates billData.items
             
             if (billData.items.length === 0) {
                 alert('অন্তত একটি পণ্য নির্বাচন করুন এবং পরিমাণ দিন');
@@ -280,25 +434,117 @@
             // Populate modal
             document.getElementById('modalCustomerName').textContent = 
                 document.querySelector('input[name="customerName"]').value || '-';
+            document.getElementById('modalPhoneNumber').textContent = 
+                document.querySelector('input[name="phoneNumber"]').value || '-';
             document.getElementById('modalNotes').textContent = 
                 document.querySelector('input[name="notes"]').value || '-';
             
             const modalBillItems = document.getElementById('modalBillItems');
             modalBillItems.innerHTML = '';
             
-            billData.items.forEach(item => {
+            let totalQty = 0;
+            let totalPrice = 0;
+            
+            billData.items.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${item.name}</td>
                     <td class="text-end">৳${item.price.toFixed(2)}</td>
-                    <td class="text-end">${item.quantity}</td>
+                    <td class="text-center"><strong>${item.quantity}</strong></td>
                     <td class="text-end fw-bold">৳${item.total.toFixed(2)}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-danger modal-qty-decrease" data-item-index="${index}" title="কমান">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-success modal-qty-increase" data-item-index="${index}" title="বাড়ান">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </td>
                 `;
+                tr.setAttribute('data-item-index', index);
                 modalBillItems.appendChild(tr);
+                
+                totalQty += item.quantity;
+                totalPrice += item.total;
             });
             
-            document.getElementById('modalTotalQty').textContent = billData.totalQty;
-            document.getElementById('modalTotalPrice').textContent = '৳' + billData.totalPrice.toFixed(2);
+            // Update modal totals
+            document.getElementById('modalTotalQty').textContent = totalQty;
+            document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+            
+        // Event delegation for modal quantity buttons
+        document.getElementById('modalBillItems').addEventListener('click', function(e) {
+            const btn = e.target.closest('.modal-qty-increase, .modal-qty-decrease');
+            if (!btn) return;
+            
+            const index = parseInt(btn.getAttribute('data-item-index'));
+            const item = billData.items[index];
+            const maxQty = document.querySelector(`.product-qty[data-product-id="${item.id}"]`)?.max || 999;
+            
+            if (btn.classList.contains('modal-qty-increase')) {
+                if (item.quantity < parseInt(maxQty)) {
+                    item.quantity += 1;
+                    item.total = item.price * item.quantity;
+                    // Update the modal row display
+                    const row = document.querySelector(`tr[data-item-index="${index}"]`);
+                    if (row) {
+                        row.querySelector('td:nth-child(3)').textContent = item.quantity;
+                        row.querySelector('td:nth-child(4)').textContent = '৳' + item.total.toFixed(2);
+                    }
+                    // Update modal totals
+                    let totalQty = 0, totalPrice = 0;
+                    billData.items.forEach(i => {
+                        totalQty += i.quantity;
+                        totalPrice += i.total;
+                    });
+                    document.getElementById('modalTotalQty').textContent = totalQty;
+                    document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+                }
+            } else if (btn.classList.contains('modal-qty-decrease')) {
+                if (item.quantity > 1) {
+                    item.quantity -= 1;
+                    item.total = item.price * item.quantity;
+                    // Update the modal row display
+                    const row = document.querySelector(`tr[data-item-index="${index}"]`);
+                    if (row) {
+                        row.querySelector('td:nth-child(3)').textContent = item.quantity;
+                        row.querySelector('td:nth-child(4)').textContent = '৳' + item.total.toFixed(2);
+                    }
+                    // Update modal totals
+                    let totalQty = 0, totalPrice = 0;
+                    billData.items.forEach(i => {
+                        totalQty += i.quantity;
+                        totalPrice += i.total;
+                    });
+                    document.getElementById('modalTotalQty').textContent = totalQty;
+                    document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+                } else if (item.quantity === 1) {
+                    // Remove the row when quantity reaches 0
+                    const row = document.querySelector(`tr[data-item-index="${index}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    // Remove from billData
+                    billData.items.splice(index, 1);
+                    // Update modal totals
+                    let totalQty = 0, totalPrice = 0;
+                    billData.items.forEach(i => {
+                        totalQty += i.quantity;
+                        totalPrice += i.total;
+                    });
+                    document.getElementById('modalTotalQty').textContent = totalQty;
+                    document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+                    // Also uncheck the product in main form
+                    const checkbox = document.querySelector(`.product-check[data-product-id="${item.id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                    document.querySelector(`.product-qty[data-product-id="${item.id}"]`).value = 0;
+                }
+            }
+        });
             
             // Show modal
             new bootstrap.Modal(document.getElementById('billModal')).show();
@@ -307,7 +553,6 @@
         // Confirm button - submit form
         document.getElementById('confirmBtn')?.addEventListener('click', function(e) {
             e.preventDefault();
-            const billData = updateBill();
             const form = document.getElementById('saleForm');
             
             if (!billData.items || billData.items.length === 0) {
@@ -341,16 +586,25 @@
                 modalInstance.hide();
             }
             
+            // Add event listener to refresh page after form submission succeeds
+            form.addEventListener('submit', function() {
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            }, { once: true });
+            
             // Submit the form
             form.submit();
         });
         
-        // Product search
+        // Product search by name or category
         document.getElementById('productSearch')?.addEventListener('keyup', function(e) {
-            const searchText = e.target.value.toLowerCase();
+            const searchText = e.target.value.trim().toLowerCase();
             document.querySelectorAll('.product-row').forEach(row => {
                 const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                row.style.display = productName.includes(searchText) ? '' : 'none';
+                const productCategory = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const matches = productName.includes(searchText) || productCategory.includes(searchText);
+                row.style.display = matches ? '' : 'none';
             });
         });
     </script>

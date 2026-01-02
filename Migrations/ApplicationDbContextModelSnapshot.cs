@@ -91,6 +91,10 @@ namespace Inventory_and_Sales_Tracker.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("TEXT");
 

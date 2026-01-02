@@ -17,13 +17,25 @@ namespace InventoryTracker.Controllers
         }
 
         // GET: Sales
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string? searchTerm = "")
         {
             var transactions = await _context.SalesTransactions
                 .Include(s => s.SalesItems!)
                 .ThenInclude(si => si.Product)
                 .OrderByDescending(s => s.SaleDate)
                 .ToListAsync();
+            
+            searchTerm = searchTerm?.Trim() ?? "";
+            
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                transactions = transactions
+                    .Where(t => t.CustomerName!.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+            
+            ViewBag.SearchTerm = searchTerm;
             return View(transactions);
         }
 
@@ -37,7 +49,7 @@ namespace InventoryTracker.Controllers
         // POST: Sales/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string? customerName, string? notes, int[] productIds, int[] quantities)
+        public async Task<IActionResult> Create(string? customerName, string? phoneNumber, string? notes, int[] productIds, int[] quantities)
         {
             if (productIds == null || productIds.Length == 0 || quantities == null || quantities.Length == 0)
             {
@@ -56,6 +68,7 @@ namespace InventoryTracker.Controllers
             var transaction = new SalesTransaction
             {
                 CustomerName = customerName,
+                PhoneNumber = phoneNumber,
                 Notes = notes,
                 SaleDate = DateTime.Now,
                 SalesItems = new List<SalesItem>()

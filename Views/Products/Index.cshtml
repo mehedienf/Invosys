@@ -4,34 +4,97 @@
     ViewData["Title"] = "Product List";
 }
 
-<h1>Products</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>পণ্য তালিকা</h1>
+    <a asp-controller="Products" asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>নতুন পণ্য যোগ করুন
+    </a>
+</div>
 
-<p>
-    <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Create New Product</a>
-</p>
+<!-- Search Section -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <label class="form-label"><i class="bi bi-search me-1"></i>পণ্য খুঁজুন</label>
+        <input type="text" id="productSearch" class="form-control" placeholder="পণ্যের নাম বা ক্যাটাগরি দ্বারা খুঁজুন..." />
+    </div>
+</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>নাম</th>
-            <th>মূল্য (BDT)</th>
-            <th>পরিমাণ</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-dark">
             <tr>
-                <td>@product.Name</td>
-                <td>@product.Price</td>
-                <td>@product.Quantity</td>
-                <td>
-                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-info btn-sm">Details</a>
-                    <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger btn-sm">Delete</a>
-                </td>
+                <th>পণ্যের নাম</th>
+                <th>ক্যাটাগরি</th>
+                <th>মূল্য (৳)</th>
+                <th class="text-center">পরিমাণ</th>
+                <th></th>
             </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+                @foreach (var product in Model)
+                {
+                    <tr class="product-row">
+                        <td><strong>@product.Name</strong></td>
+                        <td><span class="badge bg-info">@product.Category</span></td>
+                        <td>@product.Price.ToString("N2")</td>
+                        <td class="text-center">
+                            <span class="badge @(product.Quantity > 0 ? "bg-success" : "bg-danger")">@product.Quantity</span>
+                        </td>
+                        <td>
+                            <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-info btn-sm">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center py-4">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="text-muted mt-2">@(string.IsNullOrEmpty(ViewBag.SearchTerm) ? "কোনো পণ্য নেই" : "কোনো মিল খুঁজে পাওয়া যায়নি")</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Real-time product search by name or category
+    document.getElementById('productSearch')?.addEventListener('keyup', function(e) {
+        const searchText = e.target.value.trim().toLowerCase();
+        let visibleCount = 0;
+        
+        document.querySelectorAll('.product-row').forEach(row => {
+            const productName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+            const productCategory = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const matches = productName.includes(searchText) || productCategory.includes(searchText);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+        
+        // Show/hide no results message
+        const tbody = document.querySelector('tbody');
+        let noResultsRow = tbody.querySelector('.no-results-row');
+        if (visibleCount === 0 && document.querySelectorAll('.product-row').length > 0) {
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.className = 'no-results-row';
+                noResultsRow.innerHTML = `<td colspan="5" class="text-center py-4"><i class="bi bi-inbox fs-1 text-muted"></i><p class="text-muted mt-2">কোনো মিল খুঁজে পাওয়া যায়নি</p></td>`;
+                tbody.appendChild(noResultsRow);
+            }
+        } else if (noResultsRow) {
+            noResultsRow.remove();
         }
-    </tbody>
-</table>
+    });
+</script>

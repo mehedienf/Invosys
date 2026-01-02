@@ -22,9 +22,14 @@
                         <div class="card bg-light">
                             <div class="card-body">
                                 <h6 class="text-muted mb-2"><i class="bi bi-person me-1"></i>গ্রাহক</h6>
-                                <h5 class="mb-0">
+                                <h5 class="mb-3">
                                     @(string.IsNullOrEmpty(Model.CustomerName) ? "সাধারণ গ্রাহক" : Model.CustomerName)
                                 </h5>
+                                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                                {
+                                    <h6 class="text-muted mb-2"><i class="bi bi-telephone me-1"></i>ফোন নম্বর</h6>
+                                    <p class="mb-0"><strong>@Model.PhoneNumber</strong></p>
+                                }
                             </div>
                         </div>
                     </div>

@@ -17,9 +17,20 @@ namespace InventoryTracker.Controllers
         }
 
         // GET: Inventory
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm = "")
         {
             var products = await _context.Products.ToListAsync();
+            searchTerm = searchTerm?.Trim() ?? "";
+            
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                products = products
+                    .Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                p.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+            
+            ViewBag.SearchTerm = searchTerm;
             return View(products);
         }
 

@@ -16,6 +16,14 @@
     </a>
 </div>
 
+<!-- Search Section -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <label class="form-label"><i class="bi bi-search me-1"></i>পণ্য খুঁজুন</label>
+        <input type="text" id="productSearch" class="form-control" placeholder="পণ্যের নাম বা ক্যাটাগরি দ্বারা খুঁজুন..." />
+    </div>
+</div>
+
 <div class="card shadow">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -35,7 +43,7 @@
                     {
                         @foreach (var item in Model)
                         {
-                            <tr>
+                            <tr class="product-row">
                                 <td>
                                     <strong>@item.Name</strong>
                                 </td>
@@ -94,3 +102,33 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Real-time inventory search by name or category
+    document.getElementById('productSearch')?.addEventListener('keyup', function(e) {
+        const searchText = e.target.value.trim().toLowerCase();
+        let visibleCount = 0;
+        
+        document.querySelectorAll('.product-row').forEach(row => {
+            const productName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+            const productCategory = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const matches = productName.includes(searchText) || productCategory.includes(searchText);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+        
+        // Show/hide no results message
+        const tbody = document.querySelector('tbody');
+        let noResultsRow = tbody.querySelector('.no-results-row');
+        if (visibleCount === 0 && document.querySelectorAll('.product-row').length > 0) {
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.className = 'no-results-row';
+                noResultsRow.innerHTML = `<td colspan="6" class="text-center py-4"><i class="bi bi-inbox fs-1 text-muted"></i><p class="text-muted mt-2">কোনো মিল খুঁজে পাওয়া যায়নি</p></td>`;
+                tbody.appendChild(noResultsRow);
+            }
+        } else if (noResultsRow) {
+            noResultsRow.remove();
+        }
+    });
+</script>
