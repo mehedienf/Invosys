@@ -115,3 +115,6 @@ opencover/
 *.bak.db
 *.backup
 *.restore
+
+# note
+*.md
