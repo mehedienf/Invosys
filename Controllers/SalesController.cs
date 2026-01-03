@@ -49,7 +49,7 @@ namespace InventoryTracker.Controllers
         // POST: Sales/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string? customerName, string? phoneNumber, string? notes, int[] productIds, int[] quantities)
+        public async Task<IActionResult> Create(string? customerName, string? phoneNumber, string? notes, decimal discountAmount, int[] productIds, int[] quantities)
         {
             if (productIds == null || productIds.Length == 0 || quantities == null || quantities.Length == 0)
             {
@@ -63,6 +63,12 @@ namespace InventoryTracker.Controllers
                 ModelState.AddModelError("", "পণ্য এবং পরিমাণের সংখ্যা মেলে না");
                 ViewBag.Products = await _context.Products.Where(p => p.Quantity > 0).ToListAsync();
                 return View();
+            }
+
+            // Validate discount amount
+            if (discountAmount < 0)
+            {
+                discountAmount = 0;
             }
 
             var transaction = new SalesTransaction
@@ -98,30 +104,11 @@ namespace InventoryTracker.Controllers
             }
 
             transaction.TotalAmount = totalAmount;
+            transaction.DiscountAmount = Math.Round(discountAmount, 2);
+            transaction.FinalAmount = Math.Round(totalAmount - discountAmount, 2);
 
             _context.SalesTransactions.Add(transaction);
             await _context.SaveChangesAsync();
-
-            // Reload transaction with items and products
-            var savedTransaction = await _context.SalesTransactions
-                .Include(s => s.SalesItems!)
-                .ThenInclude(si => si.Product)
-                .FirstOrDefaultAsync(s => s.Id == transaction.Id);
-
-            // Receipt data pass through TempData
-            TempData["ReceiptId"] = savedTransaction!.Id;
-            TempData["ReceiptDate"] = savedTransaction.SaleDate.ToString("dd/MM/yyyy HH:mm");
-            TempData["ReceiptCustomer"] = savedTransaction.CustomerName ?? "অতিথি";
-            TempData["ReceiptPhone"] = savedTransaction.PhoneNumber ?? "N/A";
-            TempData["ReceiptItems"] = System.Text.Json.JsonSerializer.Serialize(
-                savedTransaction.SalesItems!.Select(si => new { 
-                    Name = si.Product!.Name, 
-                    Qty = si.QuantitySold, 
-                    Price = si.UnitPrice,
-                    Total = si.QuantitySold * si.UnitPrice
-                }).ToList()
-            );
-            TempData["ReceiptTotal"] = savedTransaction.TotalAmount.ToString("0.00");
 
             return RedirectToAction(nameof(Index));
         }

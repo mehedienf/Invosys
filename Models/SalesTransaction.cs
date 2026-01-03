@@ -25,6 +25,14 @@ namespace InventoryTracker.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal TotalAmount { get; set; }
 
+        [Display(Name = "ছাড় (টাকা)")]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal DiscountAmount { get; set; } = 0;
+
+        [Display(Name = "চূড়ান্ত মূল্য")]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal FinalAmount { get; set; }
+
         [Display(Name = "মন্তব্য")]
         [StringLength(500)]
         public string? Notes { get; set; }

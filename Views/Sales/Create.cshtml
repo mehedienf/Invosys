@@ -1,15 +1,6 @@
 @{
     ViewData["Title"] = "নতুন বিক্রয়";
     var products = ViewBag.Products as List<InventoryTracker.Models.Product> ?? new List<InventoryTracker.Models.Product>();
-    
-    // Check if receipt data exists in TempData
-    var hasReceipt = TempData.ContainsKey("ReceiptId");
-    var receiptId = hasReceipt ? TempData["ReceiptId"] : null;
-    var receiptDate = hasReceipt ? TempData["ReceiptDate"] : null;
-    var receiptCustomer = hasReceipt ? TempData["ReceiptCustomer"] : null;
-    var receiptPhone = hasReceipt ? TempData["ReceiptPhone"] : null;
-    var receiptItems = hasReceipt ? TempData["ReceiptItems"]?.ToString() : null;
-    var receiptTotal = hasReceipt ? TempData["ReceiptTotal"] : null;
 }
 
 <div class="row justify-content-center">
@@ -61,22 +52,22 @@
                                                        data-product-price="@product.Price" />
                                             </td>
                                             <td><strong>@product.Name</strong></td>
-                                            <td><span class="badge bg-info">@product.Category</span></td>
-                                            <td class="text-success">৳@product.Price.ToString("N2")</td>
+                                            <td><span class="badge bg-info fs-6">@product.Category</span></td>
+                                            <td class="text-success fs-6">৳@product.Price.ToString("N2")</td>
                                             <td>
-                                                <span class="badge @(product.Quantity < 10 ? "bg-warning" : "bg-success")">
+                                                <span class="badge @(product.Quantity < 10 ? "bg-warning" : "bg-success") fs-6">
                                                     @product.Quantity
                                                 </span>
                                             </td>
-                                            <td style="width: 200px;">
-                                                <div class="input-group input-group-sm">
+                                            <td style="width: 250px;">
+                                                <div class="input-group input-group-lg">
                                                     <button type="button" class="btn btn-outline-danger qty-decrease" 
                                                             data-product-id="@product.Id" title="কমান">
                                                         <i class="bi bi-dash-lg"></i>
                                                     </button>
                                                     <input type="number" class="form-control text-center product-qty" 
                                                            value="0" min="0" max="@product.Quantity" 
-                                                           data-product-id="@product.Id" />
+                                                           data-product-id="@product.Id" placeholder="পরিমাণ" />
                                                     <button type="button" class="btn btn-outline-success qty-increase" 
                                                             data-product-id="@product.Id" data-max="@product.Quantity" title="বাড়ান">
                                                         <i class="bi bi-plus-lg"></i>
@@ -123,13 +114,13 @@
                                             <h5 class="mb-0"><span id="billTotal" class="text-success">৳0.00</span></h5>
                                         </div>
                                     </div>
-                                    <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-success" id="reviewBtn" @(products.Any() ? "" : "disabled")>
-                                            <i class="bi bi-check-circle me-1"></i>বিল পরীক্ষা করুন
-                                        </button>
-                                        <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg flex-grow-1" style="padding: 15px;">
                                             <i class="bi bi-arrow-left me-1"></i>ফিরে যান
                                         </a>
+                                        <button type="button" class="btn btn-success btn-lg flex-grow-1" id="reviewBtn" @(products.Any() ? "" : "disabled") style="padding: 15px;">
+                                            <i class="bi bi-check-circle me-1"></i>বিল পরীক্ষা করুন
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -149,24 +140,32 @@
                 <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>বিক্রয় বিল নিশ্চিতকরণ</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-3 p-sm-4" style="max-height: 80vh; overflow-y: auto;">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="bi bi-person me-1"></i>গ্রাহকের নাম (ঐচ্ছিক)
-                    </label>
-                    <input type="text" id="modalCustomerName" name="customerName" class="form-control" placeholder="গ্রাহকের নাম" />
+            <div class="modal-body p-3 p-sm-4" style="max-height: 70vh; overflow-y: auto;">
+                <div class="row g-2 mb-3">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-person me-1"></i>গ্রাহকের নাম (ঐচ্ছিক)
+                        </label>
+                        <input type="text" id="modalCustomerName" name="customerName" class="form-control form-control-sm" placeholder="গ্রাহকের নাম" />
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-telephone me-1"></i>ফোন নম্বর (ঐচ্ছিক)
+                        </label>
+                        <input type="tel" id="modalPhoneNumber" name="phoneNumber" class="form-control form-control-sm" placeholder="०१XXX-XXXXXX" />
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-sticky me-1"></i>মন্তব্য (ঐচ্ছিক)
+                        </label>
+                        <input type="text" id="modalNotes" name="notes" class="form-control form-control-sm" placeholder="বিক্রয়ের মন্তব্য" />
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">
-                        <i class="bi bi-telephone me-1"></i>ফোন নম্বর (ঐচ্ছিক)
+                        <i class="bi bi-cash-coin me-1"></i>ছাড় (টাকা)
                     </label>
-                    <input type="tel" id="modalPhoneNumber" name="phoneNumber" class="form-control" placeholder="০১XXX-XXXXXX" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="bi bi-sticky me-1"></i>মন্তব্য (ঐচ্ছিক)
-                    </label>
-                    <input type="text" id="modalNotes" name="notes" class="form-control" placeholder="বিক্রয়ের মন্তব্য" />
+                    <input type="number" id="modalDiscount" name="discountAmount" class="form-control form-control-sm" placeholder="0" min="0" step="0.01" style="max-width: 150px;" />
                 </div>
                 <hr />
                 <h6 class="mb-3"><i class="bi bi-box me-2"></i>পণ্য তালিকা</h6>
@@ -185,121 +184,49 @@
                         </tbody>
                     </table>
                 </div>
-                <hr />
-                <div class="row">
-                    <div class="col-6">
-                        <span>মোট পণ্য সংখ্যা:</span>
-                    </div>
-                    <div class="col-6 text-end">
-                        <span id="modalTotalQty" class="badge bg-info">0</span>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-6">
-                        <strong>মোট বিক্রয় মূল্য:</strong>
-                    </div>
-                    <div class="col-6 text-end">
-                        <h5 class="mb-0"><span id="modalTotalPrice" class="text-success">৳0.00</span></h5>
-                    </div>
-                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল</button>
-                <button type="button" class="btn btn-success" id="confirmBtn">
-                    <i class="bi bi-check-circle me-1"></i>নিশ্চিত করুন এবং বিক্রয় সম্পন্ন করুন
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Receipt Modal -->
-<div class="modal fade" id="receiptModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Sales Receipt</h5>
-            </div>
-            <div class="modal-body">
-                <!-- Receipt Card -->
-                <div class="card border-0" id="receiptCard" style="background: #f8f9fa; border: 2px dashed #28a745;">
-                    <div class="card-body p-4">
-                        <!-- Header -->
-                        <div class="text-center mb-4">
-                            <h4 class="mb-1">🛍️ Our Store</h4>
-                            <p class="text-muted small mb-0">Sales Receipt</p>
+            <div class="modal-footer border-top p-3">
+                <div class="w-100">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <span>মোট পণ্য সংখ্যা:</span>
                         </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Receipt Details -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Receipt No:</span>
-                                <strong id="receiptNumber">-</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Date & Time:</span>
-                                <strong id="receiptDateTime">-</strong>
-                            </div>
+                        <div class="col-6 text-end">
+                            <span id="modalTotalQty" class="badge bg-info">0</span>
                         </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Customer Info -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Customer:</span>
-                                <strong id="receiptCustomer">-</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">Phone:</span>
-                                <strong id="receiptPhone">-</strong>
-                            </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <strong>মোট বিক্রয় মূল্য:</strong>
                         </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Items -->
-                        <div class="mb-3">
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
-                                    <span style="flex: 1;">Product</span>
-                                    <span style="width: 50px; text-align: center;">Qty</span>
-                                    <span style="width: 80px; text-align: right;">Price</span>
-                                </div>
-                            </div>
-                            <div id="receiptItems"></div>
+                        <div class="col-6 text-end">
+                            <h5 class="mb-0"><span id="modalTotalPrice" class="text-success">৳0.00</span></h5>
                         </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Total -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>Total Amount:</strong>
-                                <h5 class="mb-0 text-success"><strong id="receiptTotal">৳0.00</strong></h5>
-                            </div>
+                    </div>
+                    <div class="row mb-2" id="discountRow" style="display: none;">
+                        <div class="col-6">
+                            <span id="discountLabel"><strong>ছাড়:</strong></span>
                         </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Footer -->
-                        <div class="text-center text-muted small">
-                            <p class="mb-1">Thank you for shopping with us!</p>
-                            <p>See you again!</p>
+                        <div class="col-6 text-end">
+                            <span id="discountDisplay" class="text-danger"><strong>-৳<span id="discountValue">0.00</span></strong></span>
+                        </div>
+                    </div>
+                    <div class="row" id="finalAmountRow" style="display: none;">
+                        <div class="col-6">
+                            <strong>চূড়ান্ত মূল্য:</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h5 class="mb-0"><span id="modalFinalPrice" class="text-success">৳0.00</span></h5>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="closeReceiptBtn" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle me-1"></i>বাতিল
-                </button>
-                <button type="button" class="btn btn-success" id="printReceiptBtn" onclick="window.print();">
-                    <i class="bi bi-printer me-1"></i>রসিদ প্রিন্ট করুন
-                </button>
+                <hr class="my-3 w-100" />
+                <div class="w-100 d-flex gap-2">
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" style="padding: 15px; font-size: 1.1rem;">বাতিল</button>
+                    <button type="button" class="btn btn-success btn-lg flex-grow-1" id="confirmBtn" style="padding: 15px; font-size: 1.1rem;">
+                        <i class="bi bi-check-circle me-1"></i>নিশ্চিত করুন এবং বিক্রয় সম্পন্ন করুন
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -309,103 +236,6 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     
     <script>
-        // Check if receipt data exists and show receipt modal
-        @if (hasReceipt && receiptId != null)
-        {
-            <text>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Receipt data found, preparing modal...');
-            
-            try {
-                // Populate receipt modal with data
-                const receiptNumberEl = document.getElementById('receiptNumber');
-                const receiptDateEl = document.getElementById('receiptDateTime');
-                const receiptCustomerEl = document.getElementById('receiptCustomer');
-                const receiptPhoneEl = document.getElementById('receiptPhone');
-                const receiptTotalEl = document.getElementById('receiptTotal');
-                const itemsContainer = document.getElementById('receiptItems');
-                
-                if (receiptNumberEl) receiptNumberEl.textContent = '@receiptId';
-                if (receiptDateEl) receiptDateEl.textContent = '@receiptDate';
-                if (receiptCustomerEl) receiptCustomerEl.textContent = '@Html.Raw(receiptCustomer ?? "অতিথি")';
-                if (receiptPhoneEl) receiptPhoneEl.textContent = '@Html.Raw(receiptPhone ?? "N/A")';
-                if (receiptTotalEl) receiptTotalEl.textContent = '৳@receiptTotal';
-                
-                // Parse and display receipt items - items stored as JSON array in TempData
-                const receiptItemsJson = @Html.Raw(receiptItems ?? "[]");
-                console.log('Parsed items:', receiptItemsJson);
-                
-                if (itemsContainer && receiptItemsJson && Array.isArray(receiptItemsJson) && receiptItemsJson.length > 0) {
-                    itemsContainer.innerHTML = '';
-                    
-                    receiptItemsJson.forEach(item => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'mb-2';
-                        const itemName = item.Name || 'Unknown Product';
-                        const itemQty = item.Qty || 0;
-                        const itemTotal = parseFloat(item.Total || 0).toFixed(2);
-                        
-                        itemDiv.innerHTML = `
-                            <div class="d-flex justify-content-between small">
-                                <span style="flex: 1;">${itemName}</span>
-                                <span style="width: 50px; text-align: center;">x${itemQty}</span>
-                                <span style="width: 80px; text-align: right;">৳${itemTotal}</span>
-                            </div>
-                        `;
-                        itemsContainer.appendChild(itemDiv);
-                    });
-                    console.log('Items rendered successfully');
-                } else {
-                    console.warn('No items to display or items is not an array');
-                }
-                
-                // Show receipt modal
-                const modalElement = document.getElementById('receiptModal');
-                if (modalElement) {
-                    const receiptModal = new bootstrap.Modal(modalElement);
-                    receiptModal.show();
-                    console.log('Receipt modal shown');
-                } else {
-                    console.error('Receipt modal element not found');
-                }
-            } catch (e) {
-                console.error('Error in receipt processing:', e);
-            }
-            
-            // Clear form on print close
-            const closeBtn = document.getElementById('closeReceiptBtn');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    // Clear the form
-                    const form = document.getElementById('saleForm');
-                    if (form) form.reset();
-                    // Reset all checkboxes
-                    document.querySelectorAll('.product-check').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.product-qty').forEach(input => input.value = 0);
-                    // Update bill display
-                    if (typeof updateBill === 'function') {
-                        updateBill();
-                    }
-                });
-            }
-            
-            // Setup print functionality
-            const printBtn = document.getElementById('printReceiptBtn');
-            if (printBtn) {
-                printBtn.addEventListener('click', function() {
-                    window.print();
-                });
-            }
-        });
-            </text>
-        }
-        else
-        {
-            <text>
-        console.log('No receipt data available');
-            </text>
-        }
-        
         // Global billData to store current bill state
         let billData = { items: [] };
         
@@ -456,11 +286,11 @@
                             <div>
                                 <strong>${item.name}</strong>
                             </div>
-                            <div class="btn-group btn-group-sm" role="group">
+                            <div class="d-flex align-items-center gap-2">
                                 <button type="button" class="btn btn-sm btn-outline-danger bill-qty-decrease" data-item-index="${index}" title="কমান">
                                     <i class="bi bi-dash-lg"></i>
                                 </button>
-                                <span class="badge bg-secondary" style="display: inline-block; padding: 0.5em 0.75em; margin: 0 5px;">${item.quantity}</span>
+                                <span class="badge bg-secondary" style="display: inline-block; padding: 0.5em 0.75em; min-width: 60px;">পরিমাণ: ${item.quantity}</span>
                                 <button type="button" class="btn btn-sm btn-outline-success bill-qty-increase" data-item-index="${index}" title="বাড়ান">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
@@ -511,7 +341,9 @@
                     document.querySelector(`.product-qty[data-product-id="${productId}"]`).value = item.quantity;
                     updateBill();
                 } else if (item.quantity === 1) {
-                    // When quantity reaches 0, uncheck the product and set quantity to 0
+                    // Remove the item from billData
+                    billData.items.splice(index, 1);
+                    // Uncheck the product checkbox
                     const checkbox = document.querySelector(`.product-check[data-product-id="${productId}"]`);
                     if (checkbox) {
                         checkbox.checked = false;
@@ -543,10 +375,28 @@
                 totalPrice += item.total;
             });
             
+            // Get discount from input
+            const discountInput = document.getElementById('modalDiscount');
+            const discountAmount = parseFloat(discountInput.value) || 0;
+            const finalPrice = totalPrice - discountAmount;
+            
             // Update modal totals
             document.getElementById('modalTotalQty').textContent = totalQty;
             document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+            
+            // Update discount display
+            const discountRow = document.getElementById('discountRow');
+            if (discountAmount > 0) {
+                discountRow.style.display = 'flex';
+                document.getElementById('discountValue').textContent = discountAmount.toFixed(2);
+                document.getElementById('finalAmountRow').style.display = 'flex';
+                document.getElementById('modalFinalPrice').textContent = '৳' + finalPrice.toFixed(2);
+            } else {
+                discountRow.style.display = 'none';
+                document.getElementById('finalAmountRow').style.display = 'none';
+            }
         }
+        
         
         // Increment/Decrement buttons
         document.querySelectorAll('.qty-increase').forEach(btn => {
@@ -559,7 +409,12 @@
                     let currentVal = parseInt(input.value) || 0;
                     if (currentVal < maxQty) {
                         input.value = currentVal + 1;
-                        input.dispatchEvent(new Event('change'));
+                        // Update checkbox and trigger change
+                        const checkbox = document.querySelector(`.product-check[data-product-id="${productId}"]`);
+                        if (checkbox) {
+                            checkbox.checked = (currentVal + 1) > 0;
+                        }
+                        updateBill();
                     }
                 }
             });
@@ -574,7 +429,12 @@
                     let currentVal = parseInt(input.value) || 0;
                     if (currentVal > 0) {
                         input.value = currentVal - 1;
-                        input.dispatchEvent(new Event('change'));
+                        // Update checkbox and trigger change
+                        const checkbox = document.querySelector(`.product-check[data-product-id="${productId}"]`);
+                        if (checkbox) {
+                            checkbox.checked = (currentVal - 1) > 0;
+                        }
+                        updateBill();
                     }
                 }
             });
@@ -606,6 +466,7 @@
             });
         });
         
+        
         // Review button - show confirmation modal
         document.getElementById('reviewBtn')?.addEventListener('click', function(e) {
             e.preventDefault();
@@ -631,14 +492,9 @@
                     <td class="text-center"><strong>${item.quantity}</strong></td>
                     <td class="text-end fw-bold">৳${item.total.toFixed(2)}</td>
                     <td class="text-center">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn btn-outline-danger modal-qty-decrease" data-item-index="${index}" title="কমান">
-                                <i class="bi bi-dash-lg"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-success modal-qty-increase" data-item-index="${index}" title="বাড়ান">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger modal-qty-decrease" data-item-index="${index}" title="সরান">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
                     </td>
                 `;
                 tr.setAttribute('data-item-index', index);
@@ -654,74 +510,33 @@
             
         // Event delegation for modal quantity buttons
         document.getElementById('modalBillItems').addEventListener('click', function(e) {
-            const btn = e.target.closest('.modal-qty-increase, .modal-qty-decrease');
+            const btn = e.target.closest('.modal-qty-decrease');
             if (!btn) return;
             
             const index = parseInt(btn.getAttribute('data-item-index'));
             const item = billData.items[index];
-            const maxQty = document.querySelector(`.product-qty[data-product-id="${item.id}"]`)?.max || 999;
             
-            if (btn.classList.contains('modal-qty-increase')) {
-                if (item.quantity < parseInt(maxQty)) {
-                    item.quantity += 1;
-                    item.total = item.price * item.quantity;
-                    // Update the modal row display
-                    const row = document.querySelector(`tr[data-item-index="${index}"]`);
-                    if (row) {
-                        row.querySelector('td:nth-child(3)').textContent = item.quantity;
-                        row.querySelector('td:nth-child(4)').textContent = '৳' + item.total.toFixed(2);
-                    }
-                    // Update modal totals
-                    let totalQty = 0, totalPrice = 0;
-                    billData.items.forEach(i => {
-                        totalQty += i.quantity;
-                        totalPrice += i.total;
-                    });
-                    document.getElementById('modalTotalQty').textContent = totalQty;
-                    document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
-                }
-            } else if (btn.classList.contains('modal-qty-decrease')) {
-                if (item.quantity > 1) {
-                    item.quantity -= 1;
-                    item.total = item.price * item.quantity;
-                    // Update the modal row display
-                    const row = document.querySelector(`tr[data-item-index="${index}"]`);
-                    if (row) {
-                        row.querySelector('td:nth-child(3)').textContent = item.quantity;
-                        row.querySelector('td:nth-child(4)').textContent = '৳' + item.total.toFixed(2);
-                    }
-                    // Update modal totals
-                    let totalQty = 0, totalPrice = 0;
-                    billData.items.forEach(i => {
-                        totalQty += i.quantity;
-                        totalPrice += i.total;
-                    });
-                    document.getElementById('modalTotalQty').textContent = totalQty;
-                    document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
-                } else if (item.quantity === 1) {
-                    // Remove the row when quantity reaches 0
-                    const row = document.querySelector(`tr[data-item-index="${index}"]`);
-                    if (row) {
-                        row.remove();
-                    }
-                    // Remove from billData
-                    billData.items.splice(index, 1);
-                    // Update modal totals
-                    let totalQty = 0, totalPrice = 0;
-                    billData.items.forEach(i => {
-                        totalQty += i.quantity;
-                        totalPrice += i.total;
-                    });
-                    document.getElementById('modalTotalQty').textContent = totalQty;
-                    document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
-                    // Also uncheck the product in main form
-                    const checkbox = document.querySelector(`.product-check[data-product-id="${item.id}"]`);
-                    if (checkbox) {
-                        checkbox.checked = false;
-                    }
-                    document.querySelector(`.product-qty[data-product-id="${item.id}"]`).value = 0;
-                }
+            // Remove the row immediately
+            const row = document.querySelector(`tr[data-item-index="${index}"]`);
+            if (row) {
+                row.remove();
             }
+            // Remove from billData
+            billData.items.splice(index, 1);
+            // Update modal totals
+            let totalQty = 0, totalPrice = 0;
+            billData.items.forEach(i => {
+                totalQty += i.quantity;
+                totalPrice += i.total;
+            });
+            document.getElementById('modalTotalQty').textContent = totalQty;
+            document.getElementById('modalTotalPrice').textContent = '৳' + totalPrice.toFixed(2);
+            // Also uncheck the product in main form
+            const checkbox = document.querySelector(`.product-check[data-product-id="${item.id}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+            document.querySelector(`.product-qty[data-product-id="${item.id}"]`).value = 0;
         });
             
             // Show modal
@@ -739,12 +554,13 @@
             }
             
             // Remove any existing hidden inputs first
-            form.querySelectorAll('input[name="productIds"], input[name="quantities"], input[name="customerName"], input[name="phoneNumber"], input[name="notes"]').forEach(el => el.remove());
+            form.querySelectorAll('input[name="productIds"], input[name="quantities"], input[name="customerName"], input[name="phoneNumber"], input[name="notes"], input[name="discountAmount"]').forEach(el => el.remove());
             
             // Add customer info from modal to form
             const customerName = document.getElementById('modalCustomerName').value;
             const phoneNumber = document.getElementById('modalPhoneNumber').value;
             const notes = document.getElementById('modalNotes').value;
+            const discountAmount = document.getElementById('modalDiscount').value;
             
             if (customerName) {
                 const nameInput = document.createElement('input');
@@ -770,6 +586,13 @@
                 form.appendChild(notesInput);
             }
             
+            // Add discount amount
+            const discountInput = document.createElement('input');
+            discountInput.type = 'hidden';
+            discountInput.name = 'discountAmount';
+            discountInput.value = discountAmount || '0';
+            form.appendChild(discountInput);
+            
             // Add hidden inputs for products and quantities
             billData.items.forEach(item => {
                 const pidInput = document.createElement('input');
@@ -786,6 +609,7 @@
             });
             
             console.log('Submitting form with products:', billData.items);
+            console.log('Discount amount being sent:', discountAmount);
             
             // Close confirmation modal and submit
             const modalInstance = bootstrap.Modal.getInstance(document.getElementById('billModal'));
@@ -807,6 +631,13 @@
                 row.style.display = matches ? '' : 'none';
             });
         });
+        
+        // Discount input change listener
+        const discountInput = document.getElementById('modalDiscount');
+        if (discountInput) {
+            discountInput.addEventListener('change', updateBillFromModal);
+            discountInput.addEventListener('keyup', updateBillFromModal);
+        }
     </script>
     
     <style>

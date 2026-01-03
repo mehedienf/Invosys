@@ -78,7 +78,20 @@
                                     <span class="badge bg-info">@(sale.SalesItems?.Count ?? 0) টি পণ্য</span>
                                 </td>
                                 <td class="text-end">
-                                    <strong class="text-success fs-5">৳@sale.TotalAmount.ToString("N2")</strong>
+                                    @if (sale.DiscountAmount > 0)
+                                    {
+                                        <div>
+                                            <small class="text-muted text-decoration-line-through">৳@sale.TotalAmount.ToString("N2")</small>
+                                        </div>
+                                        <strong class="text-success fs-5">৳@sale.FinalAmount.ToString("N2")</strong>
+                                        <div>
+                                            <small class="badge bg-danger">-৳@sale.DiscountAmount.ToString("N2") ছাড়</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <strong class="text-success fs-5">৳@sale.TotalAmount.ToString("N2")</strong>
+                                    }
                                 </td>
                                 <td class="text-center">
                                     <a asp-action="Details" asp-route-id="@sale.Id" class="btn btn-sm btn-outline-info">
@@ -106,7 +119,7 @@
     </div>
 </div>
 
-@if (Model != null && Model.Any())
+@if (Model != null && Model.Any() && User.IsInRole("Admin"))
 {
     <div class="card mt-4 bg-light">
         <div class="card-body">
@@ -117,239 +130,13 @@
                 </div>
                 <div class="col-md-4">
                     <h6 class="text-muted">মোট আয়</h6>
-                    <h3 class="text-success">৳@Model.Sum(s => s.TotalAmount).ToString("N2")</h3>
+                    <h3 class="text-success">৳@Model.Sum(s => s.FinalAmount).ToString("N2")</h3>
                 </div>
                 <div class="col-md-4">
                     <h6 class="text-muted">গড় বিক্রয়</h6>
-                    <h3 class="text-info">৳@Model.Average(s => s.TotalAmount).ToString("N2")</h3>
+                    <h3 class="text-info">৳@Model.Average(s => s.FinalAmount).ToString("N2")</h3>
                 </div>
             </div>
         </div>
     </div>
 }
-
-<!-- Receipt Modal -->
-@{
-    var hasReceipt = TempData.ContainsKey("ReceiptId");
-    var receiptId = hasReceipt ? TempData["ReceiptId"] : null;
-    var receiptDate = hasReceipt ? TempData["ReceiptDate"] : null;
-    var receiptCustomer = hasReceipt ? TempData["ReceiptCustomer"] : null;
-    var receiptPhone = hasReceipt ? TempData["ReceiptPhone"] : null;
-    var receiptItems = hasReceipt ? TempData["ReceiptItems"]?.ToString() : null;
-    var receiptTotal = hasReceipt ? TempData["ReceiptTotal"] : null;
-}
-
-<div class="modal fade @(hasReceipt ? "show" : "")" id="receiptModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" @(hasReceipt ? "style=\"display: block;\"" : "")>
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>বিক্রয় রসিদ</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Receipt Card -->
-                <div class="card border-0" id="receiptCard" style="background: #f8f9fa; border: 2px dashed #28a745;">
-                    <div class="card-body p-4">
-                        <!-- Header -->
-                        <div class="text-center mb-4">
-                            <h4 class="mb-1">🛍️ আমাদের দোকান</h4>
-                            <p class="text-muted small mb-0">বিক্রয় রসিদ</p>
-                        </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Receipt Details -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">রসিদ নম্বর:</span>
-                                <strong id="receiptNumber">-</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">তারিখ ও সময়:</span>
-                                <strong id="receiptDateTime">-</strong>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Customer Info -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">গ্রাহক:</span>
-                                <strong id="receiptCustomerName">-</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">ফোন:</span>
-                                <strong id="receiptPhoneNumber">-</strong>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Items -->
-                        <div class="mb-3">
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
-                                    <span style="flex: 1;">পণ্য</span>
-                                    <span style="width: 50px; text-align: center;">পরিমাণ</span>
-                                    <span style="width: 80px; text-align: right;">মূল্য</span>
-                                </div>
-                            </div>
-                            <div id="receiptItems"></div>
-                        </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Total -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>মোট পরিমাণ:</strong>
-                                <h5 class="mb-0 text-success"><strong id="receiptTotalAmount">৳0.00</strong></h5>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-2" />
-                        
-                        <!-- Footer -->
-                        <div class="text-center text-muted small">
-                            <p class="mb-1">আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!</p>
-                            <p>আবার দেখা হবে!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="closeReceiptBtn" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle me-1"></i>বাতিল
-                </button>
-                <button type="button" class="btn btn-success" id="printReceiptBtn" onclick="printReceipt();">
-                    <i class="bi bi-printer me-1"></i>রসিদ প্রিন্ট করুন
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (hasReceipt)
-{
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                // Populate receipt modal with data
-                const receiptNumberEl = document.getElementById('receiptNumber');
-                const receiptDateEl = document.getElementById('receiptDateTime');
-                const receiptCustomerEl = document.getElementById('receiptCustomerName');
-                const receiptPhoneEl = document.getElementById('receiptPhoneNumber');
-                const receiptTotalEl = document.getElementById('receiptTotalAmount');
-                const itemsContainer = document.getElementById('receiptItems');
-                
-                if (receiptNumberEl) receiptNumberEl.textContent = '@receiptId';
-                if (receiptDateEl) receiptDateEl.textContent = '@receiptDate';
-                if (receiptCustomerEl) receiptCustomerEl.textContent = '@Html.Raw(receiptCustomer ?? "অতিথি")';
-                if (receiptPhoneEl) receiptPhoneEl.textContent = '@Html.Raw(receiptPhone ?? "N/A")';
-                if (receiptTotalEl) receiptTotalEl.textContent = '৳@receiptTotal';
-                
-                // Parse and display receipt items
-                const receiptItemsJson = @Html.Raw(receiptItems ?? "[]");
-                
-                if (itemsContainer && receiptItemsJson && Array.isArray(receiptItemsJson) && receiptItemsJson.length > 0) {
-                    itemsContainer.innerHTML = '';
-                    
-                    receiptItemsJson.forEach(item => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'mb-2';
-                        const itemName = item.Name || 'Unknown Product';
-                        const itemQty = item.Qty || 0;
-                        const itemTotal = parseFloat(item.Total || 0).toFixed(2);
-                        
-                        itemDiv.innerHTML = `
-                            <div class="d-flex justify-content-between small">
-                                <span style="flex: 1;">` + itemName + `</span>
-                                <span style="width: 50px; text-align: center;">x` + itemQty + `</span>
-                                <span style="width: 80px; text-align: right;">৳` + itemTotal + `</span>
-                            </div>
-                        `;
-                        itemsContainer.appendChild(itemDiv);
-                    });
-                }
-
-                // Show modal
-                const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
-                modal.show();
-            } catch (error) {
-                console.error('Error displaying receipt:', error);
-            }
-        });
-    </script>
-}
-
-<script>
-    function printReceipt() {
-        const receiptCard = document.getElementById('receiptCard').outerHTML;
-        const printWindow = window.open('', '', 'height=600,width=800');
-        printWindow.document.write('<!DOCTYPE html>');
-        printWindow.document.write('<html><head><title>বিক্রয় রসিদ</title>');
-        printWindow.document.write('<meta charset="UTF-8">');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { margin: 20px; font-family: Arial, sans-serif; }');
-        printWindow.document.write('.card { background: white; border: none; padding: 20px; }');
-        printWindow.document.write('.text-center { text-align: center; }');
-        printWindow.document.write('.d-flex { display: flex; justify-content: space-between; }');
-        printWindow.document.write('hr { border: 1px solid #999; margin: 10px 0; }');
-        printWindow.document.write('h4, h5 { margin: 5px 0; }');
-        printWindow.document.write('.small { font-size: 12px; }');
-        printWindow.document.write('.mb-0 { margin-bottom: 0; }');
-        printWindow.document.write('.mb-1 { margin-bottom: 5px; }');
-        printWindow.document.write('.mb-2 { margin-bottom: 10px; }');
-        printWindow.document.write('.mb-3 { margin-bottom: 15px; }');
-        printWindow.document.write('.mb-4 { margin-bottom: 20px; }');
-        printWindow.document.write('.p-4 { padding: 20px; }');
-        printWindow.document.write('</style></head><body>');
-        printWindow.document.write(receiptCard);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        
-        setTimeout(() => {
-            printWindow.print();
-        }, 250);
-    }
-
-    // Real-time sales search by customer name or phone number
-    document.getElementById('saleSearch')?.addEventListener('keyup', function(e) {
-        const searchText = e.target.value.trim().toLowerCase();
-        let visibleCount = 0;
-        
-        document.querySelectorAll('.sale-row').forEach(row => {
-            const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-            const phoneNumber = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-            const matches = customerName.includes(searchText) || phoneNumber.includes(searchText);
-            row.style.display = matches ? '' : 'none';
-            if (matches) visibleCount++;
-        });
-        
-        // Show/hide no results message
-        const tbody = document.querySelector('tbody');
-        let noResultsRow = tbody.querySelector('.no-results-row');
-        if (visibleCount === 0 && document.querySelectorAll('.sale-row').length > 0) {
-            if (!noResultsRow) {
-                noResultsRow = document.createElement('tr');
-                noResultsRow.className = 'no-results-row';
-                noResultsRow.innerHTML = `<td colspan="7" class="text-center py-4"><i class="bi bi-inbox fs-1 text-muted"></i><p class="text-muted mt-2">কোনো মিল খুঁজে পাওয়া যায়নি</p></td>`;
-                tbody.appendChild(noResultsRow);
-            }
-        } else if (noResultsRow) {
-            noResultsRow.remove();
-        }
-    });
-    </script>
-
-<style>
-    #receiptModal.modal.show {
-        background-color: rgba(0, 0, 0, 0.8) !important;
-    }
-    
-    .modal-backdrop {
-        opacity: 0.8 !important;
-    }
-</style>

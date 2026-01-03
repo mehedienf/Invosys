@@ -168,7 +168,7 @@
                                 <td style="width: 8%;" class="text-center">
                                     <span class="badge bg-info">@(sale.SalesItems?.Count ?? 0) টি</span>
                                 </td>
-                                <td style="width: 12%;" class="text-end text-success fw-bold">৳@sale.TotalAmount.ToString("N2")</td>
+                                <td style="width: 12%;" class="text-end text-success fw-bold">৳@sale.FinalAmount.ToString("N2")</td>
                                 <td style="width: 12%;" class="text-center">
                                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-sale-id="@sale.Id">
                                         <i class="bi bi-trash me-1"></i>মুছে ফেলুন

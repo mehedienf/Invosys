@@ -37,7 +37,12 @@
                         <div class="card bg-success text-white">
                             <div class="card-body">
                                 <h6 class="opacity-75 mb-2"><i class="bi bi-cash me-1"></i>মোট মূল্য</h6>
-                                <h3 class="mb-0">৳@Model.TotalAmount.ToString("N2")</h3>
+                                <h5 class="mb-2 text-decoration-line-through opacity-75">৳@Model.TotalAmount.ToString("N2")</h5>
+                                <h6 class="opacity-75 mb-1"><i class="bi bi-tag me-1"></i>ছাড়</h6>
+                                <p class="mb-2">-৳@Model.DiscountAmount.ToString("N2")</p>
+                                <hr class="my-2 opacity-50" />
+                                <h6 class="opacity-75 mb-2"><i class="bi bi-cash-coin me-1"></i>চূড়ান্ত মূল্য</h6>
+                                <h3 class="mb-0 fw-bold">৳@Model.FinalAmount.ToString("N2")</h3>
                             </div>
                         </div>
                     </div>
@@ -88,6 +93,14 @@
                             <tr>
                                 <td colspan="4" class="text-end"><strong>মোট:</strong></td>
                                 <td class="text-end text-success fs-5 fw-bold">৳@Model.TotalAmount.ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>ছাড়:</strong></td>
+                                <td class="text-end text-danger fw-bold">-৳@Model.DiscountAmount.ToString("N2")</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td colspan="4" class="text-end"><strong>চূড়ান্ত মূল্য:</strong></td>
+                                <td class="text-end text-success fs-5 fw-bold">৳@Model.FinalAmount.ToString("N2")</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -185,6 +198,16 @@
                             <div class="d-flex justify-content-between">
                                 <strong>মোট পরিমাণ:</strong>
                                 <h5 class="mb-0 text-success"><strong>৳@Model.TotalAmount.ToString("N2")</strong></h5>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span>ছাড়:</span>
+                                    <span class="text-danger"><strong>-৳@Model.DiscountAmount.ToString("N2")</strong></span>
+                                </div>
+                                <div class="d-flex justify-content-between mt-2 border-top pt-2">
+                                    <strong>চূড়ান্ত মূল্য:</strong>
+                                    <h5 class="mb-0 text-success fw-bold" style="font-size: 1.3rem; letter-spacing: 0.5px;">৳@Model.FinalAmount.ToString("N2")</h5>
+                                </div>
                             </div>
                         </div>
                         

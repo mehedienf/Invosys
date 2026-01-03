@@ -35,7 +35,7 @@ namespace InventoryTracker.Controllers
             
             // Fetch sales data and aggregate on client side
             var revenues = await _context.SalesTransactions
-                .Select(s => s.TotalAmount)
+                .Select(s => s.FinalAmount)
                 .ToListAsync();
             ViewBag.TotalRevenue = revenues.Sum();
             
@@ -81,7 +81,7 @@ namespace InventoryTracker.Controllers
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     TotalSales = g.Count(),
-                    TotalRevenue = g.Sum(x => x.TotalAmount)
+                    TotalRevenue = g.Sum(x => x.FinalAmount)
                 })
                 .OrderBy(x => x.Year)
                 .ThenBy(x => x.Month)
@@ -121,7 +121,7 @@ namespace InventoryTracker.Controllers
             var sales = await query.OrderByDescending(s => s.SaleDate).ToListAsync();
             
             ViewBag.TotalSales = sales.Count;
-            ViewBag.TotalRevenue = sales.Sum(s => s.TotalAmount);
+            ViewBag.TotalRevenue = sales.Sum(s => s.FinalAmount);
             
             // বেশি বিক্রয় হওয়া পণ্য - যে পণ্যগুলো সবচেয়ে বেশি বিক্রিত হয়েছে
             var products = await _context.Products.ToListAsync();
